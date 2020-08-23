@@ -22,6 +22,7 @@ class BluetoothService:
         self.addon = xbmcaddon.Addon()
         self.dialog = xbmcgui.Dialog()
         self.monitor = Monitor(reloadAction = self.onSettingsChanged, screensaverAction = self.onScreensaverActivated)
+        self.last_turned_off_time = 0
         self.refresh_settings()
 
     def onSettingsChanged(self):
@@ -33,7 +34,12 @@ class BluetoothService:
         if self.use_screensaver:
             self.disconnect_possible_devices()
 
-    def disconnect_possible_devices(self):
+    def disconnect_possible_devices(self, inactivity_seconds = None):
+        if inactivity_seconds is None:
+            inactivity_seconds = xbmc.getGlobalIdleTime()
+        if self.last_turned_off_time != 0 and inactivity_seconds > self.last_turned_off_time:
+            self.log('Inactivity time {0} exceeds the last turned off time ({1}), doing nothing'.format(inactivity_seconds, self.last_turned_off_time))
+            return
         for device_name, device_mac in self.devices_to_disconnect.iteritems():
             self.log('Checking for device {0} ({1})'.format(device_name, device_mac))
             if self.device_connected(device_mac):
@@ -46,6 +52,7 @@ class BluetoothService:
                     self.notify_disconnection_failure(device_name, device_mac)
             else:
                 self.log('Device {0} ({1}) was not connected, nothing to do'.format(device_name, device_mac))
+        self.last_turned_off_time = inactivity_seconds
 
     def refresh_settings(self):
         self.log('Reading settings')
@@ -99,7 +106,7 @@ class BluetoothService:
             self.log('Inactive time is {0} seconds'.format(str(inactivity_seconds)))
             if inactivity_seconds >= self.inactivity_threshold:
                 self.log('This is more than the threshold of {0} seconds, checking for devices'.format(self.inactivity_threshold))
-                self.disconnect_possible_devices()
+                self.disconnect_possible_devices(inactivity_seconds)
             else:
                 self.log('This is less than the threshold of {0} seconds, not doing anything'.format(self.inactivity_threshold))
         else:
