@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="32000">
+		<setting id="check_time" label="32001" default="1" type="slider" range="1,1,30"/>
+		<setting id="inactivity_time" label="32002" type="slider" default="5" range="0,5,30"/>
+		<setting id="notify" label="32006" type="bool" default="true"/>
+		<setting id="use_screensaver" label="32007" type="bool" default="true"/>
+		<setting id="show_gui" label="32003" type="action" action="RunAddon(script.service.bluetooth.watcher)"/>
+		<setting id="devices_to_disconnect" label="32004" type="text" visible="false" default=""/>
+	</category>
+</settings>

@@ -1,0 +1,45 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: XBMC Translation Team\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#32000"
+msgid "Bluetooth Watcher Script"
+msgstr ""
+
+msgctxt "#32001"
+msgid "Check for inactivity every X minute(s)"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Disconnect device(s) if idle for Y minutes"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Select devices to disconnect"
+msgstr ""
+
+msgctxt "#32004"
+msgid "[Internal] Should not be seen"
+msgstr ""
+
+msgctxt "#32005"
+msgid "Device disconnected due to inactivity"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Notify on disconnect?"
+msgstr ""
+
+msgctxt "#32007"
+msgid "Turn devices off when screensaver is activated (additional method)"
+msgstr ""

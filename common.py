@@ -1,0 +1,46 @@
+import xbmc
+import subprocess
+
+__PLUGIN_ID__ = 'script.service.bluetooth.watcher'
+__PLUGIN_VERSION__ = 'v0.0.1'
+
+__GET_DEVICES__ = 'bluetoothctl devices'
+__GET_DEVICE_INFO__ = 'bluetoothctl info {0}'
+__IS_DEVICE_CONNECTED__ = 'Connected: yes'
+__DISCONNECT_DEVICE__ = 'bluetoothctl disconnect {0}'
+__DISCONNECT_DEVICE_SUCCESSFUL__ = 'Successful'
+
+__STRING_PLUGIN_NAME_ID__ = 32000
+__STRING_DEVICE_DISCONNECTED_ID__ = 32005
+__STRING_DEVICES_TO_DISCONNECT_ID__ = 32004
+
+__SETTING_DEVICES_TO_DISCONNECT_ID__ = 'devices_to_disconnect'
+__SETTING_CHECK_TIME__ = 'check_time'
+__SETTING_INACTIVITY_TIME__ = 'inactivity_time'
+__SETTING_NOTIFY__ = "notify"
+__SETTING_USE_SCREENSAVER__ = "use_screensaver"
+
+def uniquify(mylist):
+    dups = {}
+    for i, val in enumerate(mylist):
+        if val not in dups:
+            # Store index of first occurrence and occurrence value
+            dups[val] = [i, 1]
+        else:
+            # Special case for first occurrence
+            if dups[val][1] == 1:
+                mylist[dups[val][0]] += str(dups[val][1])
+            # Increment occurrence value, index value doesn't matter anymore
+            dups[val][1] += 1
+            # Use stored occurrence value
+            mylist[i] += str(dups[val][1])
+    return mylist
+
+def get_devices_dict():
+    #k, v = device_name, device_mac
+    command_output = subprocess.check_output(__GET_DEVICES__, shell = True).decode('utf-8')[:-1]
+    devices_dict = dict(zip(uniquify([element[25:] for element in command_output.split('\n')]), [element.split(' ')[1] for element in command_output.split('\n')]))
+    return devices_dict
+
+def log(msg, mode = xbmc.LOGDEBUG):
+    xbmc.log("[{0}_{1}]: {2}".format(__PLUGIN_ID__, __PLUGIN_VERSION__, str(msg)), mode)

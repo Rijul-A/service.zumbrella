@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.service.bluetooth.watcher" name="Bluetooth Watcher" version="0.0.1" provider-name="Rijul">
+	<requires>
+		<import addon="xbmc.addon" version="18.0.0"/>
+		<import addon="xbmc.python" version="2.26.0"/>
+	</requires>
+	<extension point="xbmc.python.script" library="gui.py">
+		<provides>executable</provides>
+	</extension>
+  <extension point="xbmc.service" library="service.py" start="login"/>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en_GB">Save the battery life of your PS3 controllers and other Bluetooth devices</summary>
+		<description lang="en_GB">Lists all Bluetooth devices and disconnects the selected ones after X minutes of inactivity. Shows an optional notification when done, similar to PS4.</description>
+		<language></language>
+		<platform>all</platform>
+	</extension>
+</addon>
