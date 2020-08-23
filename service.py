@@ -37,8 +37,9 @@ class BluetoothService:
     def disconnect_possible_devices(self, inactivity_seconds = None):
         if inactivity_seconds is None:
             inactivity_seconds = xbmc.getGlobalIdleTime()
-        if self.last_turned_off_time != 0 and inactivity_seconds > self.last_turned_off_time:
-            self.log('Inactivity time {0} exceeds the last turned off time ({1}), doing nothing'.format(inactivity_seconds, self.last_turned_off_time))
+        #add an extra layer of check_time seconds to prevent turning off immediately on connect
+        if self.last_turned_off_time != 0 and (inactivity_seconds - self.last_turned_off_time <= self.check_time):
+            self.log('Inactivity_time ({0}) less last_turned_off_time ({1}) is less than the check_time ({2}), doing nothing'.format(inactivity_seconds, self.last_turned_off_time, self.check_time))
             return
         for device_name, device_mac in self.devices_to_disconnect.iteritems():
             self.log('Checking for device {0} ({1})'.format(device_name, device_mac))
@@ -58,10 +59,10 @@ class BluetoothService:
         self.log('Reading settings')
         self.check_time = int(self.addon.getSetting(common.__SETTING_CHECK_TIME__)) * 60
         self.inactivity_threshold = int(self.addon.getSetting(common.__SETTING_INACTIVITY_TIME__)) * 60
-        self.use_screensaver = bool(self.addon.getSetting(common.__SETTING_USE_SCREENSAVER__))
-        self.notify = bool(self.addon.getSetting(common.__SETTING_NOTIFY__))
         if self.inactivity_threshold == 0:
             self.inactivity_threshold = 60
+        self.use_screensaver = bool(self.addon.getSetting(common.__SETTING_USE_SCREENSAVER__))
+        self.notify = bool(self.addon.getSetting(common.__SETTING_NOTIFY__))
         try:
             self.devices_to_disconnect = json.loads(self.addon.getSettingString(common.__SETTING_DEVICES_TO_DISCONNECT_ID__))
         except ValueError:
