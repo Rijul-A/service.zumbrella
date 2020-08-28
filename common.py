@@ -19,6 +19,8 @@ __SETTING_DEVICES_TO_DISCONNECT_ID__ = 'devices_to_disconnect'
 __SETTING_CHECK_TIME__ = 'check_time'
 __SETTING_INACTIVITY_TIME__ = 'inactivity_time'
 __SETTING_NOTIFY__ = "notify"
+__SETTING_NOTIFY_SOUND__ = "notify_sound"
+__SETTING_NOTIFY_SOUND_PLAYING__ = "notify_sound_playing"
 __SETTING_USE_SCREENSAVER__ = "use_screensaver"
 __SETTING_LOG_MODE_BOOL__ = "debug"
 

@@ -72,6 +72,8 @@ class BluetoothService:
             self.inactivity_threshold = 60
         self.use_screensaver = self.addon.getSetting(common.__SETTING_USE_SCREENSAVER__) == 'true'
         self.notify = self.addon.getSetting(common.__SETTING_NOTIFY__) == 'true'
+        self.notify_sound = self.addon.getSetting(common.__SETTING_NOTIFY_SOUND__) == 'true'
+        self.notify_sound_playing = self.addon.getSetting(common.__SETTING_NOTIFY_SOUND_PLAYING__) == 'true'
         try:
             self.devices_to_disconnect = json.loads(self.addon.getSettingString(common.__SETTING_DEVICES_TO_DISCONNECT_ID__))
         except ValueError:
@@ -82,6 +84,8 @@ class BluetoothService:
         self.log('inactivity_threshold: {0}'.format(str(self.inactivity_threshold)))
         self.log('use_screensaver: {0}'.format(str(self.use_screensaver)))
         self.log('notify: {0}'.format(str(self.notify)))
+        self.log('notify_sound: {0}'.format(str(self.notify_sound)))
+        self.log('notify_sound_playing: {0}'.format(str(self.notify_sound_playing)))
         self.log('devices_to_disconnect: {0}'.format(json.dumps(self.devices_to_disconnect)))
         self.log('debugMode: {}'.format(str(debugMode)))
         if not debugMode:
@@ -105,7 +109,19 @@ class BluetoothService:
 
     def notify_disconnection_success(self, device_name, device_mac):
         if self.notify:
-            self.dialog.notification(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_ID__) + " {0} ({1})".format(device_name, device_mac), sound = True)
+            self.log('Notifying for disconnection success')
+            sound = False
+            self.log('Determining if sound is to be played')
+            if self.notify_sound:
+                self.log('Sound was requested, checking further conditions')
+                if self.notify_sound_playing:
+                    self.log('Sound only requested if playing media')
+                    sound = xbmc.Player().isPlaying()
+                else:
+                    self.log('Sound requested always')
+                    sound = True
+            self.log('sound: {0}'.format(str(sound)))
+            self.dialog.notification(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_ID__) + " {0} ({1})".format(device_name, device_mac), sound = sound)
 
     def notify_disconnection_failure(self, device_name, device_mac):
         pass
@@ -134,7 +150,7 @@ if __name__ == '__main__':
     common.log('service.py: main, creating object')
     object = BluetoothService()
     if object.has_devices_to_disconnect():
-        while not object.monitor.abortRequested():
+        while not xbmc.Monitor().abortRequested():
             object.check_for_inactivity()
     else:
         object.log('No eligible devices to disconnect, disabling service')

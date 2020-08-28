@@ -37,13 +37,21 @@ msgid "Device disconnected due to inactivity"
 msgstr ""
 
 msgctxt "#32006"
-msgid "Notify on disconnect?"
+msgid "Notify on disconnect"
 msgstr ""
 
 msgctxt "#32007"
-msgid "Turn devices off when screensaver is activated (additional method)"
+msgid "Trigger on screensaver"
 msgstr ""
 
 msgctxt "#32008"
-msgid "Log everything?"
+msgid "Log everything"
+msgstr ""
+
+msgctxt "#32009"
+msgid "Notify with sound"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Emit notification sound only if media playing"
 msgstr ""
