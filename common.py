@@ -1,5 +1,6 @@
 import xbmc
 import subprocess
+import json
 
 __PLUGIN_ID__ = 'script.service.bluetooth.watcher'
 __PLUGIN_VERSION__ = 'v0.0.1'
@@ -19,6 +20,9 @@ __SETTING_CHECK_TIME__ = 'check_time'
 __SETTING_INACTIVITY_TIME__ = 'inactivity_time'
 __SETTING_NOTIFY__ = "notify"
 __SETTING_USE_SCREENSAVER__ = "use_screensaver"
+__SETTING_LOG_MODE_BOOL__ = "debug"
+
+logMode = xbmc.LOGNOTICE
 
 def uniquify(mylist):
     dups = {}
@@ -38,9 +42,13 @@ def uniquify(mylist):
 
 def get_devices_dict():
     #k, v = device_name, device_mac
+    log('Creating dictionary of devies')
     command_output = subprocess.check_output(__GET_DEVICES__, shell = True).decode('utf-8')[:-1]
     devices_dict = dict(zip(uniquify([element[25:] for element in command_output.split('\n')]), [element.split(' ')[1] for element in command_output.split('\n')]))
+    log('Created devices dictionary {}'.format(json.dumps(devices_dict)))
     return devices_dict
 
-def log(msg, mode = xbmc.LOGDEBUG):
+def log(msg, mode = None):
+    global logMode
+    mode = None or logMode
     xbmc.log("[{0}_{1}]: {2}".format(__PLUGIN_ID__, __PLUGIN_VERSION__, str(msg)), mode)

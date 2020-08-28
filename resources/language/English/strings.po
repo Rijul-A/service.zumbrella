@@ -43,3 +43,7 @@ msgstr ""
 msgctxt "#32007"
 msgid "Turn devices off when screensaver is activated (additional method)"
 msgstr ""
+
+msgctxt "#32008"
+msgid "Log everything?"
+msgstr ""

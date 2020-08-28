@@ -5,6 +5,7 @@
 		<setting id="inactivity_time" label="32002" type="slider" default="5" range="0,5,30"/>
 		<setting id="notify" label="32006" type="bool" default="true"/>
 		<setting id="use_screensaver" label="32007" type="bool" default="true"/>
+		<setting id="debug" label="32008" type="bool" default="false"/>
 		<setting id="show_gui" label="32003" type="action" action="RunAddon(script.service.bluetooth.watcher)"/>
 		<setting id="devices_to_disconnect" label="32004" type="text" visible="false" default=""/>
 	</category>
