@@ -49,21 +49,21 @@ class WatcherService:
         if (self.check_duration_eligibility() == WatcherService.__DISCONNECTION_ELIGIBILITY_YES__) or force:
             oneDeviceDisconnected = False
             for device_name, device_mac in self.devices_to_disconnect.iteritems():
-                self.log('Checking for device {0} ({1})'.format(device_name, device_mac))
+                self.log('Checking for device {} ({})'.format(device_name, device_mac))
                 if self.device_connected(device_mac):
-                    self.log('Device {0} ({1}) was connected, disconnecting it now'.format(device_name, device_mac))
+                    self.log('Device {} ({}) was connected, disconnecting it now'.format(device_name, device_mac))
                     if self.disconnect_device(device_mac):
-                        self.log('Device {0} ({1}) disconnected successfully, notifying'.format(device_name, device_mac))
+                        self.log('Device {} ({}) disconnected successfully, notifying'.format(device_name, device_mac))
                         oneDeviceDisconnected = True
                         if force:
-                            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_DEMAND_ID__) + " {0} ({1})".format(device_name, device_mac), True)
+                            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), "{}: {} ({})".format(self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_DEMAND_ID__), device_name, device_mac), True)
                         else:
                             self.notify_disconnection_success(device_name, device_mac)
                     else:
-                        self.log('Device {0} ({1}) could not be disconnected, notifying'.format(device_name, device_mac))
+                        self.log('Device {} ({}) could not be disconnected, notifying'.format(device_name, device_mac))
                         self.notify_disconnection_failure(device_name, device_mac)
                 else:
-                    self.log('Device {0} ({1}) was not connected, nothing to do'.format(device_name, device_mac))
+                    self.log('Device {} ({}) was not connected, nothing to do'.format(device_name, device_mac))
             if not oneDeviceDisconnected:
                 if force:
                     self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_NO_DEVICE_DISCONNECTED_ID__), True)
@@ -86,15 +86,15 @@ class WatcherService:
             self.devices_to_disconnect = {}
         debugMode = self.addon.getSetting(common.__SETTING_LOG_MODE_BOOL__) == 'true'
         self.log('Loaded settings')
-        self.log('check_time: {0}'.format(str(self.check_time)))
-        self.log('inactivity_threshold: {0}'.format(str(self.inactivity_threshold)))
-        self.log('min_connection_time: {0}'.format(str(self.min_connection_time)))
-        self.log('use_screensaver: {0}'.format(str(self.use_screensaver)))
-        self.log('notify: {0}'.format(str(self.notify)))
-        self.log('notify_sound: {0}'.format(str(self.notify_sound)))
-        self.log('notify_sound_playing: {0}'.format(str(self.notify_sound_playing)))
-        self.log('devices_to_disconnect: {0}'.format(json.dumps(self.devices_to_disconnect)))
-        self.log('debugMode: {}'.format(str(debugMode)))
+        self.log('check_time: {}'.format(self.check_time))
+        self.log('inactivity_threshold: {}'.format(self.inactivity_threshold))
+        self.log('min_connection_time: {}'.format(self.min_connection_time))
+        self.log('use_screensaver: {}'.format(self.use_screensaver))
+        self.log('notify: {}'.format(self.notify))
+        self.log('notify_sound: {}'.format(self.notify_sound))
+        self.log('notify_sound_playing: {}'.format(self.notify_sound_playing))
+        self.log('devices_to_disconnect: {}'.format(self.devices_to_disconnect))
+        self.log('debugMode: {}'.format(debugMode))
         if not debugMode:
             self.log('Addon going quiet due to debugMode')
         common.logMode = xbmc.LOGNOTICE if debugMode else xbmc.LOGDEBUG #now go quiet if needed
@@ -110,7 +110,7 @@ class WatcherService:
     def sleep(self, duration = None):
         if duration is None:
             duration = self.check_time
-        self.log('Waiting {0} seconds for next check'.format(str(duration)))
+        self.log('Waiting {} seconds for next check'.format(duration))
         if self.monitor.waitForAbort(duration):
             exit()
 
@@ -130,8 +130,8 @@ class WatcherService:
                 else:
                     self.log('Sound requested always')
                     sound = True
-            self.log('sound: {0}'.format(str(sound)))
-            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_INACTIVITY_ID__) + " {0} ({1})".format(device_name, device_mac))
+            self.log('Notification sound status: {}'.format(sound))
+            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), "{}: {} ({})".format(self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_INACTIVITY_ID__), device_name, device_mac))
 
     def notify_disconnection_failure(self, device_name, device_mac):
         pass
@@ -172,17 +172,17 @@ class WatcherService:
         if self.has_devices_to_disconnect():
             self.log('Checking for inactivity')
             inactivity_seconds = xbmc.getGlobalIdleTime()
-            self.log('Inactive time is {0} seconds'.format(str(inactivity_seconds)))
+            self.log('Inactive time is {} seconds'.format(inactivity_seconds))
             if inactivity_seconds >= self.inactivity_threshold:
-                self.log('This is >= the threshold of {0} seconds, calling disconnect_possible_devices'.format(self.inactivity_threshold))
+                self.log('This is >= the threshold of {} seconds, calling disconnect_possible_devices'.format(self.inactivity_threshold))
                 self.disconnect_possible_devices()
             else:
-                self.log('This is < the threshold of {0} seconds, not doing anything'.format(self.inactivity_threshold))
+                self.log('This is < the threshold of {} seconds, not doing anything'.format(self.inactivity_threshold))
         else:
             self.log('No eligible devices to disconnect, doing nothing')
 
     def log(self, msg):
-        common.log("service.py: {0}".format(msg))
+        common.log("service.py: {}".format(msg))
 
 if __name__ == '__main__':
     common.log('service.py: main, creating object')

@@ -6,9 +6,9 @@ __PLUGIN_ID__ = 'service.bluetooth.watcher'
 __PLUGIN_VERSION__ = 'v0.0.1'
 
 __GET_DEVICES__ = 'bluetoothctl devices'
-__GET_DEVICE_INFO__ = 'bluetoothctl info {0}'
+__GET_DEVICE_INFO__ = 'bluetoothctl info {}'
 __IS_DEVICE_CONNECTED__ = 'Connected: yes'
-__DISCONNECT_DEVICE__ = 'bluetoothctl disconnect {0}'
+__DISCONNECT_DEVICE__ = 'bluetoothctl disconnect {}'
 __DISCONNECT_DEVICE_SUCCESSFUL__ = 'Successful'
 
 __STRING_PLUGIN_NAME_ID__ = 32000
@@ -59,4 +59,4 @@ def get_devices_dict():
 def log(msg, mode = None):
     global logMode
     mode = None or logMode
-    xbmc.log("[{0}_{1}]: {2}".format(__PLUGIN_ID__, __PLUGIN_VERSION__, str(msg)), mode)
+    xbmc.log("[{}_{}]: {}".format(__PLUGIN_ID__, __PLUGIN_VERSION__, str(msg)), mode)
