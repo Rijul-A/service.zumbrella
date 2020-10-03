@@ -24,6 +24,10 @@ msgctxt "#32002"
 msgid "Disconnect device(s) if idle for Y minutes"
 msgstr ""
 
+msgctxt "#32011"
+msgid "Provided device(s) were connected for at least Z minutes"
+msgstr ""
+
 msgctxt "#32003"
 msgid "Select devices to disconnect"
 msgstr ""

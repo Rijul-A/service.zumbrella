@@ -1,9 +1,12 @@
-import xbmc
-import xbmcgui
-import xbmcaddon
+import xbmc, xbmcgui, xbmcaddon
+
 import subprocess
-import common
 import json
+import codecs
+import re
+import datetime as dt
+
+import common
 
 class Monitor(xbmc.Monitor):
     def __init__(self, *args, **kwargs):
@@ -17,12 +20,17 @@ class Monitor(xbmc.Monitor):
     def onScreensaverActivated(self):
         self.screensaverAction()
 
-class BluetoothService:
+class WatcherService:
+    __DISCONNECTION_ELIGIBILITY_TIME_NOT_ELAPSED__ = -2
+    __DISCONNECTION_ELIGIBILITY_NO_NEW_DEVICE__ = -1
+    __DISCONNECTION_ELIGIBILITY_YES__ = 1
+
     def __init__(self):
         self.addon = xbmcaddon.Addon()
         self.dialog = xbmcgui.Dialog()
         self.monitor = Monitor(reloadAction = self.onSettingsChanged, screensaverAction = self.onScreensaverActivated)
-        self.last_turned_off_time = None
+        self.logFile = codecs.open(xbmc.translatePath(r'special://logpath/kodi.log'), 'r', encoding = 'utf-8', errors = 'ignore')
+        self.logFileLastSize = 0    #for first run, read from top
         self.refresh_settings()
 
     def onSettingsChanged(self):
@@ -36,16 +44,10 @@ class BluetoothService:
             self.log('Disconnecting possible devices')
             self.disconnect_possible_devices()
 
-    def disconnect_possible_devices(self, inactivity_seconds = None):
+    def disconnect_possible_devices(self):
         self.log('In the disconnect_possible_devices function')
-        if inactivity_seconds is None:
-            self.log('Request received from screensaver, skipping time check#2')
-        elif self.last_turned_off_time is not None and (inactivity_seconds - self.last_turned_off_time <= self.check_time):
-            self.log('Inactivity_time ({0}) less last_turned_off_time ({1}) is less than the check_time ({2}), doing nothing'.format(inactivity_seconds, self.last_turned_off_time, self.check_time))
-            self.last_turned_off_time = self.check_time #only apply this extra layer of checks once
-            return
-        else:
-            self.log('Time check#2 passed')
+        if self.check_duration_eligibility() != WatcherService.__DISCONNECTION_ELIGIBILITY_YES__:
+            return False
         oneDeviceDisconnected = False
         for device_name, device_mac in self.devices_to_disconnect.iteritems():
             self.log('Checking for device {0} ({1})'.format(device_name, device_mac))
@@ -60,16 +62,13 @@ class BluetoothService:
                     self.notify_disconnection_failure(device_name, device_mac)
             else:
                 self.log('Device {0} ({1}) was not connected, nothing to do'.format(device_name, device_mac))
-        if oneDeviceDisconnected:   #only set the time if a device was actually disconnected
-            self.last_turned_off_time = xbmc.getGlobalIdleTime()
-            self.log('Set last_turned_off_time: {}'.format(str(self.last_turned_off_time)))
+        return oneDeviceDisconnected
 
     def refresh_settings(self):
         self.log('Reading settings')
         self.check_time = int(self.addon.getSetting(common.__SETTING_CHECK_TIME__)) * 60
         self.inactivity_threshold = int(self.addon.getSetting(common.__SETTING_INACTIVITY_TIME__)) * 60
-        if self.inactivity_threshold == 0:
-            self.inactivity_threshold = 60
+        self.min_connection_time = int(self.addon.getSetting(common.__SETTING_MIN_CONNECTION_TIME__)) * 60
         self.use_screensaver = self.addon.getSetting(common.__SETTING_USE_SCREENSAVER__) == 'true'
         self.notify = self.addon.getSetting(common.__SETTING_NOTIFY__) == 'true'
         self.notify_sound = self.addon.getSetting(common.__SETTING_NOTIFY_SOUND__) == 'true'
@@ -82,6 +81,7 @@ class BluetoothService:
         self.log('Loaded settings')
         self.log('check_time: {0}'.format(str(self.check_time)))
         self.log('inactivity_threshold: {0}'.format(str(self.inactivity_threshold)))
+        self.log('min_connection_time: {0}'.format(str(self.min_connection_time)))
         self.log('use_screensaver: {0}'.format(str(self.use_screensaver)))
         self.log('notify: {0}'.format(str(self.notify)))
         self.log('notify_sound: {0}'.format(str(self.notify_sound)))
@@ -129,6 +129,34 @@ class BluetoothService:
     def has_devices_to_disconnect(self):
         return len(self.devices_to_disconnect) != 0
 
+    def check_duration_eligibility(self):
+        disconnectionLineFound = False
+        self.logFile.seek(0, 2) #EOF
+        logFileNewSize = self.logFile.tell()
+        if (logFileNewSize > self.logFileLastSize):
+            self.log('Contents of the log file have changed since last run, checking for device connection log line')
+            self.logFile.seek(self.logFileLastSize, 0)  #go back to last check
+            lines = self.logFile.readlines()
+            for line in lines:
+                if common.__LOG_DEVICE_CONNECTED__ in line:
+                    disconnectionLineFound = True
+                    self.log('Found device connection notification in logs, checking for eligibility')
+                    deviceConnectedTime = dt.datetime(*[int(x) for x in re.findall(r'\d+', line)[0:7]])
+                    timeSinceLastConnection = dt.datetime.now() - deviceConnectedTime
+                    if timeSinceLastConnection.seconds >= self.min_connection_time:
+                        self.log('Devices are eligible for disconnection because connection was made {} seconds ago, which is >= the minimum required connection duration of {} seconds'.format(timeSinceLastConnection.seconds, self.min_connection_time))
+                        self.logFileLastSize = logFileNewSize
+                        return WatcherService.__DISCONNECTION_ELIGIBILITY_YES__
+        else:
+            self.log('No change in log files => no new devices were connected since last check; ineligible')
+            return WatcherService.__DISCONNECTION_ELIGIBILITY_NO_NEW_DEVICE__
+        if not disconnectionLineFound:
+            self.log('No new device was connected since last check (because line not found); ineligible')
+            return WatcherService. __DISCONNECTION_ELIGIBILITY_NO_NEW_DEVICE__
+        else:
+            self.log('Devices are ineligible for disconnection because connection was made {} seconds ago, which is < the minimum required connection duration of {} seconds'.format(timeSinceLastConnection.seconds, self.min_connection_time))
+            return WatcherService.__DISCONNECTION_ELIGIBILITY_TIME_NOT_ELAPSED__
+
     def check_for_inactivity(self):
         self.sleep()
         if self.has_devices_to_disconnect():
@@ -136,10 +164,10 @@ class BluetoothService:
             inactivity_seconds = xbmc.getGlobalIdleTime()
             self.log('Inactive time is {0} seconds'.format(str(inactivity_seconds)))
             if inactivity_seconds >= self.inactivity_threshold:
-                self.log('This is more than the threshold of {0} seconds, checking for devices'.format(self.inactivity_threshold))
-                self.disconnect_possible_devices(inactivity_seconds)
+                self.log('This is >= the threshold of {0} seconds, calling disconnect_possible_devices'.format(self.inactivity_threshold))
+                self.disconnect_possible_devices()
             else:
-                self.log('This is less than the threshold of {0} seconds, not doing anything'.format(self.inactivity_threshold))
+                self.log('This is < the threshold of {0} seconds, not doing anything'.format(self.inactivity_threshold))
         else:
             self.log('No eligible devices to disconnect, doing nothing')
 
@@ -148,7 +176,7 @@ class BluetoothService:
 
 if __name__ == '__main__':
     common.log('service.py: main, creating object')
-    object = BluetoothService()
+    object = WatcherService()
     if object.has_devices_to_disconnect():
         while not xbmc.Monitor().abortRequested():
             object.check_for_inactivity()
