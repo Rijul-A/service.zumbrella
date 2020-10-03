@@ -2,7 +2,7 @@ import xbmc
 import subprocess
 import json
 
-__PLUGIN_ID__ = 'script.service.bluetooth.watcher'
+__PLUGIN_ID__ = 'service.bluetooth.watcher'
 __PLUGIN_VERSION__ = 'v0.0.1'
 
 __GET_DEVICES__ = 'bluetoothctl devices'

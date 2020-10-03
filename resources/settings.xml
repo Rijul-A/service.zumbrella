@@ -9,8 +9,8 @@
 		<setting id="notify_sound_playing" label="32010" type="bool" default="true" visible="eq(-1,true)+eq(-2,true)"/>
 		<setting id="use_screensaver" label="32007" type="bool" default="false"/>
 		<setting id="debug" label="32008" type="bool" default="false"/>
-		<setting id="show_gui" label="32003" type="action" action="RunScript(script.service.bluetooth.watcher)"/>
-		<setting id="disconnect_now" label="32012" type="action" action="RunScript(script.service.bluetooth.watcher,disconnect_now)"/>
+		<setting id="show_gui" label="32003" type="action" action="RunScript(service.bluetooth.watcher)"/>
+		<setting id="disconnect_now" label="32012" type="action" action="RunScript(service.bluetooth.watcher,disconnect_now)"/>
 		<setting id="devices_to_disconnect" label="32004" type="text" visible="false" default=""/>
 	</category>
 </settings>
