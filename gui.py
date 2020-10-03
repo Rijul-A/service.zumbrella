@@ -52,7 +52,7 @@ if (__name__ == '__main__'):
         arg = sys.argv[1].lower()
     except IndexError:
         arg = None
-    common.log(str(arg))
+    #common.log(str(arg))
     if arg is not None:
         if arg == common.__SETTING_DISCONNECT_NOW__:
             object = service.WatcherService()
