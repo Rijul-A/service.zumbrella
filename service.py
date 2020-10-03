@@ -131,7 +131,7 @@ class WatcherService:
                     self.log('Sound requested always')
                     sound = True
             self.log('Notification sound status: {}'.format(sound))
-            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), "{}: {} ({})".format(self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_INACTIVITY_ID__), device_name, device_mac))
+            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), "{}: {} ({})".format(self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_INACTIVITY_ID__), device_name, device_mac), sound)
 
     def notify_disconnection_failure(self, device_name, device_mac):
         pass
