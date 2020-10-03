@@ -5,7 +5,7 @@
 		<setting id="inactivity_time" label="32002" type="slider" default="25" range="1,1,30"/>
 		<setting id="min_connection_time" label="32011" type="slider" default="5" range="1,1,30"/>
 		<setting id="notify" label="32006" type="bool" default="true"/>
-		<setting id="notify_sound" label="32009" type="bool" default="false" visible="eq(-1,true)"/>
+		<setting id="notify_sound" label="32009" type="bool" default="true" visible="eq(-1,true)"/>
 		<setting id="notify_sound_playing" label="32010" type="bool" default="true" visible="eq(-1,true)+eq(-2,true)"/>
 		<setting id="use_screensaver" label="32007" type="bool" default="false"/>
 		<setting id="debug" label="32008" type="bool" default="false"/>
