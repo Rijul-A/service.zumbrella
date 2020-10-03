@@ -55,12 +55,18 @@ class WatcherService:
                     if self.disconnect_device(device_mac):
                         self.log('Device {0} ({1}) disconnected successfully, notifying'.format(device_name, device_mac))
                         oneDeviceDisconnected = True
-                        self.notify_disconnection_success(device_name, device_mac)
+                        if force:
+                            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_DEMAND_ID__) + " {0} ({1})".format(device_name, device_mac), True)
+                        else:
+                            self.notify_disconnection_success(device_name, device_mac)
                     else:
                         self.log('Device {0} ({1}) could not be disconnected, notifying'.format(device_name, device_mac))
                         self.notify_disconnection_failure(device_name, device_mac)
                 else:
                     self.log('Device {0} ({1}) was not connected, nothing to do'.format(device_name, device_mac))
+            if not oneDeviceDisconnected:
+                if force:
+                    self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_NO_DEVICE_DISCONNECTED_ID__), True)
             return oneDeviceDisconnected
         else:
             return False
@@ -108,6 +114,9 @@ class WatcherService:
         if self.monitor.waitForAbort(duration):
             exit()
 
+    def notify_function(self, title, message, sound):
+        self.dialog.notification(title, message, sound = sound)
+
     def notify_disconnection_success(self, device_name, device_mac):
         if self.notify:
             self.log('Notifying for disconnection success')
@@ -122,7 +131,7 @@ class WatcherService:
                     self.log('Sound requested always')
                     sound = True
             self.log('sound: {0}'.format(str(sound)))
-            self.dialog.notification(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_ID__) + " {0} ({1})".format(device_name, device_mac), sound = sound)
+            self.notify_function(self.addon.getLocalizedString(common.__STRING_PLUGIN_NAME_ID__), self.addon.getLocalizedString(common.__STRING_DEVICE_DISCONNECTED_INACTIVITY_ID__) + " {0} ({1})".format(device_name, device_mac))
 
     def notify_disconnection_failure(self, device_name, device_mac):
         pass

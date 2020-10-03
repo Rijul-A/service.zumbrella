@@ -63,3 +63,11 @@ msgstr ""
 msgctxt "#32012"
 msgid "Force disconnect selected devices now"
 msgstr ""
+
+msgctxt "#32013"
+msgid "Device disconnected as requested"
+msgstr ""
+
+msgctxt "#32014"
+msgid "No devices available to disconnect"
+msgstr ""
