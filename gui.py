@@ -1,11 +1,14 @@
 import xbmc
 import xbmcgui
 import xbmcaddon
-import common
+
+import sys
 import json
 
-if (__name__ == '__main__'):
-    common.log('GUI.py - main function')
+import common
+import service
+
+def show_gui():
     thisAddon = xbmcaddon.Addon()
     common.log('Loaded thisAddon object')
     dialog = xbmcgui.Dialog()
@@ -42,3 +45,19 @@ if (__name__ == '__main__'):
         to_save_devices = {list(possible_devices_to_disconnect.keys())[element]: list(possible_devices_to_disconnect.values())[element] for element in returned_devices_to_disconnect}
         common.log('Saving new config {0}'.format(json.dumps(to_save_devices)))
         thisAddon.setSettingString(common.__SETTING_DEVICES_TO_DISCONNECT_ID__, json.dumps(to_save_devices))
+
+if (__name__ == '__main__'):
+    common.log('GUI.py - main function')
+    try:
+        arg = sys.argv[1].lower()
+    except IndexError:
+        arg = None
+    common.log(str(arg))
+    if arg is not None:
+        if arg == common.__SETTING_DISCONNECT_NOW__:
+            object = service.WatcherService()
+            object.disconnect_possible_devices(True)
+        else:
+            show_gui()
+    else:
+        show_gui()

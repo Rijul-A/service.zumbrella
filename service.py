@@ -44,25 +44,26 @@ class WatcherService:
             self.log('Disconnecting possible devices')
             self.disconnect_possible_devices()
 
-    def disconnect_possible_devices(self):
+    def disconnect_possible_devices(self, force = False):
         self.log('In the disconnect_possible_devices function')
-        if self.check_duration_eligibility() != WatcherService.__DISCONNECTION_ELIGIBILITY_YES__:
-            return False
-        oneDeviceDisconnected = False
-        for device_name, device_mac in self.devices_to_disconnect.iteritems():
-            self.log('Checking for device {0} ({1})'.format(device_name, device_mac))
-            if self.device_connected(device_mac):
-                self.log('Device {0} ({1}) was connected, disconnecting it now'.format(device_name, device_mac))
-                if self.disconnect_device(device_mac):
-                    self.log('Device {0} ({1}) disconnected successfully, notifying'.format(device_name, device_mac))
-                    oneDeviceDisconnected = True
-                    self.notify_disconnection_success(device_name, device_mac)
+        if (self.check_duration_eligibility() == WatcherService.__DISCONNECTION_ELIGIBILITY_YES__) or force:
+            oneDeviceDisconnected = False
+            for device_name, device_mac in self.devices_to_disconnect.iteritems():
+                self.log('Checking for device {0} ({1})'.format(device_name, device_mac))
+                if self.device_connected(device_mac):
+                    self.log('Device {0} ({1}) was connected, disconnecting it now'.format(device_name, device_mac))
+                    if self.disconnect_device(device_mac):
+                        self.log('Device {0} ({1}) disconnected successfully, notifying'.format(device_name, device_mac))
+                        oneDeviceDisconnected = True
+                        self.notify_disconnection_success(device_name, device_mac)
+                    else:
+                        self.log('Device {0} ({1}) could not be disconnected, notifying'.format(device_name, device_mac))
+                        self.notify_disconnection_failure(device_name, device_mac)
                 else:
-                    self.log('Device {0} ({1}) could not be disconnected, notifying'.format(device_name, device_mac))
-                    self.notify_disconnection_failure(device_name, device_mac)
-            else:
-                self.log('Device {0} ({1}) was not connected, nothing to do'.format(device_name, device_mac))
-        return oneDeviceDisconnected
+                    self.log('Device {0} ({1}) was not connected, nothing to do'.format(device_name, device_mac))
+            return oneDeviceDisconnected
+        else:
+            return False
 
     def refresh_settings(self):
         self.log('Reading settings')

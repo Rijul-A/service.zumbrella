@@ -59,3 +59,7 @@ msgstr ""
 msgctxt "#32010"
 msgid "Emit notification sound only if media playing"
 msgstr ""
+
+msgctxt "#32012"
+msgid "Force disconnect selected devices now"
+msgstr ""

@@ -24,6 +24,7 @@ __SETTING_NOTIFY_SOUND__ = "notify_sound"
 __SETTING_NOTIFY_SOUND_PLAYING__ = "notify_sound_playing"
 __SETTING_USE_SCREENSAVER__ = "use_screensaver"
 __SETTING_LOG_MODE_BOOL__ = "debug"
+__SETTING_DISCONNECT_NOW__ = "disconnect_now"
 
 __LOG_DEVICE_CONNECTED__ = 'Register - new joystick device registered on addon->peripheral.joystick'
 
