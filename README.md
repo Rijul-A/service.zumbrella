@@ -1,4 +1,4 @@
 service.bluetooth.watcher
 ================
 
-This service addon checks your Bluetooth devices for X minutes of inactivity and disconnects the chosen ones. It can optionally show a notification to that effect, similar to the PS4.
+Service addon for Kodi to check for inactivity and turn off selected Bluetooth devices and optionally display a notification to that effect
