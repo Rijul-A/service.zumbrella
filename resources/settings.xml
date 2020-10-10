@@ -2,10 +2,10 @@
 <settings>
 	<category label="32000">
 		<setting id="check_time" label="32001" default="1" type="slider" range="1,1,30"/>
-		<setting id="inactivity_threshold" label="32002" type="slider" default="25" range="1,1,30"/>
+		<setting id="inactivity_threshold" label="32002" type="slider" default="20" range="1,1,30"/>
 		<setting id="use_no_media_threshold" label="32015" type="bool" default="true"/>
-		<setting id="inactivity_threshold_no_media" label="32016" type="slider" default="2" range="1,1,30" visible="eq(-1,true)"/>
-		<setting id="min_connection_threshold" label="32011" type="slider" default="1" range="1,1,30"/>
+		<setting id="inactivity_threshold_no_media" label="32016" type="slider" default="5" range="1,1,30" visible="eq(-1,true)"/>
+		<setting id="min_connection_threshold" label="32011" type="slider" default="2" range="1,1,30"/>
 		<setting id="notify" label="32006" type="bool" default="true"/>
 		<setting id="notify_sound" label="32009" type="bool" default="true" visible="eq(-1,true)"/>
 		<setting id="notify_sound_playing" label="32010" type="bool" default="true" visible="eq(-1,true)+eq(-2,true)"/>
