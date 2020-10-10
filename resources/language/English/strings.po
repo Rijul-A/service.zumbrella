@@ -53,11 +53,11 @@ msgid "Log everything"
 msgstr ""
 
 msgctxt "#32009"
-msgid "Notify with sound"
+msgid "  Notify with sound"
 msgstr ""
 
 msgctxt "#32010"
-msgid "Emit notification sound only if media playing"
+msgid "    Emit notification sound only if media playing"
 msgstr ""
 
 msgctxt "#32012"
