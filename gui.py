@@ -49,6 +49,7 @@ def show_gui():
 def disconnect_now():
     object = service.WatcherService()
     object.disconnect_possible_devices(True)
+    del object  #to prevent two services at the same time
 
 if (__name__ == '__main__'):
     common.log('GUI.py - main function')
@@ -63,6 +64,7 @@ if (__name__ == '__main__'):
         elif arg == common.__SETTING_SHOW_GUI__:
             show_gui()
         else:
-            raise NotImplementedError
+            common.log('arg: {}'.format(arg))
+            disconnect_now()
     else:
         disconnect_now()
