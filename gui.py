@@ -59,8 +59,11 @@ if (__name__ == '__main__'):
         arg = None
     #common.log(str(arg))
     if arg is not None:
-        if arg == common.__SETTING_DISCONNECT_NOW__:
+        if common.__SETTING_DISCONNECT_NOW__ in arg:
             disconnect_now()
+            if 'back' in arg:
+                back_json = {"jsonrpc": "2.0", "method": "Input.Back", "id": 1}
+                xbmc.executeJSONRPC(json.dumps(back_json))
         elif arg == common.__SETTING_SHOW_GUI__:
             show_gui()
         else:

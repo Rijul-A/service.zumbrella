@@ -5,9 +5,9 @@
 
 	<onload>Dialog.Close(1110)</onload>
 
-	
+
 	<controls>
-	
+
 		<control type="group">
 			<include>NotificationDepth</include>
 
@@ -31,14 +31,14 @@
 					</include>
 
 					<include>DialogButtonMenu_coords3</include>
-					
+
 					<include>DialogButtonMenu_coords4</include>
-					
+
 					<content>
-                                                <item>
-                                                        <label>Turn controllers off</label>
-                                                        <onclick>RunScript(service.bluetooth.watcher,disconnect_now)</onclick>
-                                                </item>
+						<item>
+							<label>Turn controllers off</label>
+							<onclick>RunScript(service.bluetooth.watcher,disconnect_now_back)</onclick>
+						</item>
 						<item>
 							<label>13012</label>
 							<onclick>XBMC.Quit()</onclick>
