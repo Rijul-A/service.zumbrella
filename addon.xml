@@ -4,7 +4,7 @@
 		<import addon="xbmc.addon" version="18.0.0"/>
 		<import addon="xbmc.python" version="2.26.0"/>
 	</requires>
-	<extension point="xbmc.python.pluginsource" library="gui.py">
+	<extension point="xbmc.python.script" library="gui.py">
 		<provides>executable</provides>
 	</extension>
   <extension point="xbmc.service" library="service.py" start="login"/>
