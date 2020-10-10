@@ -19,8 +19,10 @@ __STRING_NO_DEVICE_DISCONNECTED_ID__ = 32014
 
 __SETTING_DEVICES_TO_DISCONNECT_ID__ = 'devices_to_disconnect'
 __SETTING_CHECK_TIME__ = 'check_time'
-__SETTING_INACTIVITY_TIME__ = 'inactivity_time'
-__SETTING_MIN_CONNECTION_TIME__ = 'min_connection_time'
+__SETTING_INACTIVITY_THRESHOLD__ = 'inactivity_threshold'
+__SETTING_USE_NO_MEDIA_THRESHOLD__ = 'use_no_media_threshold'
+__SETTING_INACTIVITY_THRESHOLD_NO_MEDIA__ = 'inactivity_threshold_no_media'
+__SETTING_MIN_CONNECTION_THRESHOLD__ = 'min_connection_threshold'
 __SETTING_NOTIFY__ = "notify"
 __SETTING_NOTIFY_SOUND__ = "notify_sound"
 __SETTING_NOTIFY_SOUND_PLAYING__ = "notify_sound_playing"

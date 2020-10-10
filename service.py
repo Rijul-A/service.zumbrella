@@ -21,7 +21,7 @@ class Monitor(xbmc.Monitor):
         self.screensaverAction()
 
 class WatcherService:
-    __DISCONNECTION_ELIGIBILITY_TIME_NOT_ELAPSED__ = -2
+    __DISCONNECTION_ELIGIBILITY_THRESHOLD_NOT_ELAPSED__ = -2
     __DISCONNECTION_ELIGIBILITY_NO_NEW_DEVICE__ = -1
     __DISCONNECTION_ELIGIBILITY_YES__ = 1
 
@@ -74,8 +74,10 @@ class WatcherService:
     def refresh_settings(self):
         self.log('Reading settings')
         self.check_time = int(self.addon.getSetting(common.__SETTING_CHECK_TIME__)) * 60
-        self.inactivity_threshold = int(self.addon.getSetting(common.__SETTING_INACTIVITY_TIME__)) * 60
-        self.min_connection_time = int(self.addon.getSetting(common.__SETTING_MIN_CONNECTION_TIME__)) * 60
+        self.inactivity_threshold = int(self.addon.getSetting(common.__SETTING_INACTIVITY_THRESHOLD__)) * 60
+        self.use_no_media_threshold = self.addon.getSetting(common.__SETTING_USE_NO_MEDIA_THRESHOLD__) == 'true'
+        self.inactivity_threshold_no_media = self.addon.getSetting(common.__SETTING_INACTIVITY_THRESHOLD_NO_MEDIA__) * 60
+        self.min_connection_threshold = int(self.addon.getSetting(common.__SETTING_MIN_CONNECTION_THRESHOLD__)) * 60
         self.use_screensaver = self.addon.getSetting(common.__SETTING_USE_SCREENSAVER__) == 'true'
         self.notify = self.addon.getSetting(common.__SETTING_NOTIFY__) == 'true'
         self.notify_sound = self.addon.getSetting(common.__SETTING_NOTIFY_SOUND__) == 'true'
@@ -88,7 +90,9 @@ class WatcherService:
         self.log('Loaded settings')
         self.log('check_time: {}'.format(self.check_time))
         self.log('inactivity_threshold: {}'.format(self.inactivity_threshold))
-        self.log('min_connection_time: {}'.format(self.min_connection_time))
+        self.log('use_no_media_threshold: {}'.format(self.use_no_media_threshold))
+        self.log('inactivity_threshold_no_media: {}'.format(Self.inactivity_threshold_no_media))
+        self.log('min_connection_threshold: {}'.format(self.min_connection_threshold))
         self.log('use_screensaver: {}'.format(self.use_screensaver))
         self.log('notify: {}'.format(self.notify))
         self.log('notify_sound: {}'.format(self.notify_sound))
@@ -153,8 +157,8 @@ class WatcherService:
                     self.log('Found device connection notification in logs, checking for eligibility')
                     deviceConnectedTime = dt.datetime(*[int(x) for x in re.findall(r'\d+', line)[0:7]])
                     timeSinceLastConnection = dt.datetime.now() - deviceConnectedTime
-                    if timeSinceLastConnection.seconds >= self.min_connection_time:
-                        self.log('Devices are eligible for disconnection because connection was made {} seconds ago, which is >= the minimum required connection duration of {} seconds'.format(timeSinceLastConnection.seconds, self.min_connection_time))
+                    if timeSinceLastConnection.seconds >= self.min_connection_threshold:
+                        self.log('Devices are eligible for disconnection because connection was made {} seconds ago, which is >= the minimum required connection duration of {} seconds'.format(timeSinceLastConnection.seconds, self.min_connection_threshold))
                         self.logFileLastSize = logFileNewSize
                         return WatcherService.__DISCONNECTION_ELIGIBILITY_YES__
         else:
@@ -164,8 +168,8 @@ class WatcherService:
             self.log('No new device was connected since last check (because line not found); ineligible')
             return WatcherService. __DISCONNECTION_ELIGIBILITY_NO_NEW_DEVICE__
         else:
-            self.log('Devices are ineligible for disconnection because connection was made {} seconds ago, which is < the minimum required connection duration of {} seconds'.format(timeSinceLastConnection.seconds, self.min_connection_time))
-            return WatcherService.__DISCONNECTION_ELIGIBILITY_TIME_NOT_ELAPSED__
+            self.log('Devices are ineligible for disconnection because connection was made {} seconds ago, which is < the minimum required connection duration of {} seconds'.format(timeSinceLastConnection.seconds, self.min_connection_threshold))
+            return WatcherService.__DISCONNECTION_ELIGIBILITY_THRESHOLD_NOT_ELAPSED__
 
     def check_for_inactivity(self):
         self.sleep()
@@ -173,11 +177,23 @@ class WatcherService:
             self.log('Checking for inactivity')
             inactivity_seconds = xbmc.getGlobalIdleTime()
             self.log('Inactive time is {} seconds'.format(inactivity_seconds))
-            if inactivity_seconds >= self.inactivity_threshold:
-                self.log('This is >= the threshold of {} seconds, calling disconnect_possible_devices'.format(self.inactivity_threshold))
+            if self.use_no_media_threshold:
+                self.log('use_no_media_threshold is True, checking if media is playing')
+                playing = xbmc.Player().isPlaying()
+                if playing:
+                    self.log('Media playing, using default threshold of {} seconds'.format(self.inactivity_threshold))
+                    threshold = self.inactivity_threshold
+                else:
+                    self.log('No media playing, using secondary threshold of {} seconds'.format(self.inactivity_threshold_no_media))
+                    threshold = self.inactivity_threshold_no_media
+            else:
+                self.log('use_no_media_threshold is False, using default threshold of {} seconds'.format(self.inactivity_threshold))
+                threshold = self.inactivity_threshold
+            if inactivity_seconds >= threshold:
+                self.log('This is >= the threshold of {} seconds, calling disconnect_possible_devices'.format(threshold))
                 self.disconnect_possible_devices()
             else:
-                self.log('This is < the threshold of {} seconds, not doing anything'.format(self.inactivity_threshold))
+                self.log('This is < the threshold of {} seconds, not doing anything'.format(threshold))
         else:
             self.log('No eligible devices to disconnect, doing nothing')
 

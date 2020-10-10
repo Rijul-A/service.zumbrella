@@ -71,3 +71,11 @@ msgstr ""
 msgctxt "#32014"
 msgid "No devices available to disconnect"
 msgstr ""
+
+msgctxt "#32015"
+msgid "Unless media was not playing"
+msgstr ""
+
+msgctxt "#32016"
+msgid "  In which case, use Y minute(s) ="
+msgstr ""
