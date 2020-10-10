@@ -76,7 +76,7 @@ class WatcherService:
         self.check_time = int(self.addon.getSetting(common.__SETTING_CHECK_TIME__)) * 60
         self.inactivity_threshold = int(self.addon.getSetting(common.__SETTING_INACTIVITY_THRESHOLD__)) * 60
         self.use_no_media_threshold = self.addon.getSetting(common.__SETTING_USE_NO_MEDIA_THRESHOLD__) == 'true'
-        self.inactivity_threshold_no_media = self.addon.getSetting(common.__SETTING_INACTIVITY_THRESHOLD_NO_MEDIA__) * 60
+        self.inactivity_threshold_no_media = int(self.addon.getSetting(common.__SETTING_INACTIVITY_THRESHOLD_NO_MEDIA__)) * 60
         self.min_connection_threshold = int(self.addon.getSetting(common.__SETTING_MIN_CONNECTION_THRESHOLD__)) * 60
         self.use_screensaver = self.addon.getSetting(common.__SETTING_USE_SCREENSAVER__) == 'true'
         self.notify = self.addon.getSetting(common.__SETTING_NOTIFY__) == 'true'
@@ -91,7 +91,7 @@ class WatcherService:
         self.log('check_time: {}'.format(self.check_time))
         self.log('inactivity_threshold: {}'.format(self.inactivity_threshold))
         self.log('use_no_media_threshold: {}'.format(self.use_no_media_threshold))
-        self.log('inactivity_threshold_no_media: {}'.format(Self.inactivity_threshold_no_media))
+        self.log('inactivity_threshold_no_media: {}'.format(self.inactivity_threshold_no_media))
         self.log('min_connection_threshold: {}'.format(self.min_connection_threshold))
         self.log('use_screensaver: {}'.format(self.use_screensaver))
         self.log('notify: {}'.format(self.notify))
@@ -190,10 +190,10 @@ class WatcherService:
                 self.log('use_no_media_threshold is False, using default threshold of {} seconds'.format(self.inactivity_threshold))
                 threshold = self.inactivity_threshold
             if inactivity_seconds >= threshold:
-                self.log('This is >= the threshold of {} seconds, calling disconnect_possible_devices'.format(threshold))
+                self.log('Inactive time of {} seconds is >= the threshold of {} seconds, calling disconnect_possible_devices'.format(inactivity_seconds, threshold))
                 self.disconnect_possible_devices()
             else:
-                self.log('This is < the threshold of {} seconds, not doing anything'.format(threshold))
+                self.log('Inactive_time of {} seconds is < the threshold of {} seconds, not doing anything'.format(inactivity_seconds, threshold))
         else:
             self.log('No eligible devices to disconnect, doing nothing')
 
