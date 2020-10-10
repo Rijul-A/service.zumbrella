@@ -21,15 +21,15 @@ msgid "Check for inactivity every X minute(s)"
 msgstr ""
 
 msgctxt "#32002"
-msgid "Disconnect device(s) if idle for Y minutes"
+msgid "Disconnect device(s) if idle for Y minute(s)"
 msgstr ""
 
 msgctxt "#32011"
-msgid "Provided device(s) were connected for at least Z minutes"
+msgid "Provided device(s) were connected for at least Z minute(s)"
 msgstr ""
 
 msgctxt "#32003"
-msgid "Select devices to disconnect"
+msgid "Select device(s) to disconnect"
 msgstr ""
 
 msgctxt "#32004"
@@ -53,15 +53,15 @@ msgid "Log everything"
 msgstr ""
 
 msgctxt "#32009"
-msgid "  Notify with sound"
+msgid " - Notify with sound"
 msgstr ""
 
 msgctxt "#32010"
-msgid "    Emit notification sound only if media playing"
+msgid "    - Emit notification sound only if media playing"
 msgstr ""
 
 msgctxt "#32012"
-msgid "Force disconnect selected devices now"
+msgid "Force disconnect selected device(s) now"
 msgstr ""
 
 msgctxt "#32013"
@@ -69,7 +69,7 @@ msgid "Device disconnected as requested"
 msgstr ""
 
 msgctxt "#32014"
-msgid "No devices available to disconnect"
+msgid "No device available to disconnect"
 msgstr ""
 
 msgctxt "#32015"
@@ -77,5 +77,5 @@ msgid "Unless media was not playing"
 msgstr ""
 
 msgctxt "#32016"
-msgid "  In which case, use Y minute(s) ="
+msgid " - In which case, use Y minute(s) ="
 msgstr ""
