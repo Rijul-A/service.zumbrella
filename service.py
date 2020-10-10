@@ -130,7 +130,7 @@ class WatcherService:
                 self.log('Sound was requested, checking further conditions')
                 if self.notify_sound_playing:
                     self.log('Sound only requested if playing media')
-                    sound = xbmc.Player().isPlaying()
+                    sound = xbmc.Player().isPlaying()   #if media is active
                 else:
                     self.log('Sound requested always')
                     sound = True
@@ -179,12 +179,12 @@ class WatcherService:
             self.log('Inactive time is {} seconds'.format(inactivity_seconds))
             if self.use_no_media_threshold:
                 self.log('use_no_media_threshold is True, checking if media is playing')
-                playing = xbmc.Player().isPlaying()
-                if playing:
-                    self.log('Media playing, using default threshold of {} seconds'.format(self.inactivity_threshold))
+                hasMedia = xbmc.getCondVisibility('Player.HasMedia')    #if media exists
+                if hasMedia:
+                    self.log('We have media, using default threshold of {} seconds'.format(self.inactivity_threshold))
                     threshold = self.inactivity_threshold
                 else:
-                    self.log('No media playing, using secondary threshold of {} seconds'.format(self.inactivity_threshold_no_media))
+                    self.log('We have no media, using secondary threshold of {} seconds'.format(self.inactivity_threshold_no_media))
                     threshold = self.inactivity_threshold_no_media
             else:
                 self.log('use_no_media_threshold is False, using default threshold of {} seconds'.format(self.inactivity_threshold))
@@ -203,8 +203,7 @@ class WatcherService:
 if __name__ == '__main__':
     common.log('service.py: main, creating object')
     object = WatcherService()
-    if object.has_devices_to_disconnect():
-        while not xbmc.Monitor().abortRequested():
-            object.check_for_inactivity()
+    while not xbmc.Monitor().abortRequested():
+        object.check_for_inactivity()   #do not kill the service because keeping it loaded in memory is needed to reload settings
     else:
         object.log('No eligible devices to disconnect, disabling service')
