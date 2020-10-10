@@ -46,6 +46,10 @@ def show_gui():
         common.log('Saving new config {}'.format(to_save_devices))
         thisAddon.setSettingString(common.__SETTING_DEVICES_TO_DISCONNECT_ID__, json.dumps(to_save_devices))
 
+def disconnect_now():
+    object = service.WatcherService()
+    object.disconnect_possible_devices(True)
+
 if (__name__ == '__main__'):
     common.log('GUI.py - main function')
     try:
@@ -55,9 +59,10 @@ if (__name__ == '__main__'):
     #common.log(str(arg))
     if arg is not None:
         if arg == common.__SETTING_DISCONNECT_NOW__:
-            object = service.WatcherService()
-            object.disconnect_possible_devices(True)
-        else:
+            disconnect_now()
+        elif arg == common.__SETTING_SHOW_GUI__:
             show_gui()
+        else:
+            raise NotImplementedError
     else:
-        show_gui()
+        disconnect_now()
