@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="32025">
-		<setting id="check_time" label="32001" default="1" type="slider" range="0,1,30"/>
+		<setting id="check_time" label="32001" default="1" type="slider" range="1,1,30"/>
 		<setting id="debug" label="32008" type="bool" default="false"/>
 	</category>
 	<category label="32017">
@@ -9,10 +9,10 @@
 		<setting id="disconnect_now" label="32012" type="action" action="RunScript(service.zumbrella,disconnect_now)"/>
 		<setting type="sep"/>
 		<setting id="devices_to_disconnect" label="32004" type="text" visible="false" default=""/>
-		<setting id="inactivity_threshold" label="32002" type="slider" default="20" range="0,1,30"/>
+		<setting id="inactivity_threshold" label="32002" type="slider" default="20" range="5,5,60"/>
 		<setting id="use_no_media_threshold" label="32015" type="bool" default="true"/>
-		<setting id="inactivity_threshold_no_media" label="32016" type="slider" default="5" range="0,1,30" enable="eq(-1,true)"/>
-		<setting id="min_connection_threshold" label="32011" type="slider" default="2" range="0,1,30"/>
+		<setting id="inactivity_threshold_no_media" label="32016" type="slider" default="5" range="5,5,60" enable="eq(-1,true)"/>
+		<setting id="min_connection_threshold" label="32011" type="slider" default="2" range="0,1,10"/>
 		<setting type="sep"/>
 		<setting id="notify" label="32006" type="bool" default="true"/>
 		<setting id="notify_sound" label="32009" type="bool" default="true" enable="eq(-1,true)"/>
@@ -21,13 +21,13 @@
 		<setting id="use_screensaver" label="32007" type="bool" default="false"/>
 	</category>
 	<category label="32018">
-		<setting id="notification_duration" label="32019" type="slider" default="30" range="15,5,180"/>
+		<setting id="notification_duration" label="32019" type="slider" default="25" range="15,5,180"/>
 		<setting type="sep"/>
 		<setting id="enable_video_supervision" label="32020" default="true" type="bool"/>
-		<setting id="video_inactivity_threshold" label="32021" type="slider" default="60" range="0,5,420" enable="eq(-1,true)"/>
+		<setting id="video_inactivity_threshold" label="32021" type="slider" default="45" range="5,5,420" enable="eq(-1,true)"/>
 		<setting type="sep"/>
 		<setting id="enable_audio_supervision" label="32022" default="true" type="bool"/>
-		<setting id="audio_inactivity_threshold" label="32021" type="slider" default="30" range="0,5,420" enable="eq(-1,true)"/>
+		<setting id="audio_inactivity_threshold" label="32021" type="slider" default="30" range="5,5,420" enable="eq(-1,true)"/>
 	</category>
 	<category label="32027">
 		<setting id="last_x_minutes" label="32028" type="slider" default="3" range="1,1,10"/>
