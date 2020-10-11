@@ -91,7 +91,7 @@ if (__name__ == '__main__'):
         if BluetoothService.__SETTING_DISCONNECT_NOW__ in arg:
             disconnect_now(thisAddon)
             if 'back' in arg:
-                common.jsonrpc(method = "Input.Back", id = 1)
+                common.json_rpc(method = "Input.Back", id = 1)
         elif arg == common.__SETTING_SHOW_GUI__:
             show_gui(thisAddon)
         else:
