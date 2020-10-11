@@ -32,6 +32,7 @@ class UpNextService(StillThereService):
     #overriden
     def refresh_settings(self):
         self.deactivated_file = None
+        self.timer = Timer(self.max_time_remaining, self.reset_deactivated_file)
         self.player = Player(playerMonitorAction = self.reset_deactivated_file)
         self.log('Reading settings')
         self.max_time_remaining = common.read_int_setting(self.addon, UpNextService.__SETTING_LAST_X_MINUTES__)
@@ -64,6 +65,8 @@ class UpNextService(StillThereService):
     def reset_deactivated_file(self):
         self.log('Resetting deactivated_file')
         self.deactivated_file = None
+        self.timer.cancel() #kill old timer
+        self.timer = Timer(self.max_time_remaining, self.reset_deactivated_file)    #instantiate new one
 
     #overriden for %age check
     def do_check(self, inactivity_seconds = None):
@@ -78,6 +81,7 @@ class UpNextService(StillThereService):
             if self.deactivated_file is not None:
                 if self.deactivated_file == playing_file:
                     self.log('File {} which is playing is deactivated'.format(playing_file))
+                    return
                 else:
                     self.log('File {} is new, turning off old deactivated_file {}'.format(playing_file, self.deactivated_file))
                     self.deactivated_file = None
@@ -118,7 +122,7 @@ class UpNextService(StillThereService):
             elif (self.custom_dialog.lastControlClicked == CustomDialog.__MIDDLE_BUTTON_ID__):
                 self.log('Setting deactivated_file, UI close was requested')
                 self.deactivated_file = playing_file
-                Timer(self.max_time_remaining, self.reset_deactivated_file)
+                self.timer.start()  #failsafe in case someone stops the dialog, pauses and then comes back a while later
             else:
                 self.log('Media finished as expected, closing dialog')
                 self.custom_dialog.close()
