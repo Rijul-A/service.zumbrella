@@ -13,11 +13,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#32000"
-msgid "Bluetooth Watcher Service"
+msgid "Sleep + Bluetooth Service"
 msgstr ""
 
 msgctxt "#32001"
-msgid "Check for inactivity every X minute(s)"
+msgid "Check for status every X minute(s)"
 msgstr ""
 
 msgctxt "#32002"
@@ -78,4 +78,68 @@ msgstr ""
 
 msgctxt "#32016"
 msgid " - In which case, use Y = "
+msgstr ""
+
+msgctxt "#32017"
+msgid "Bluetooth Service"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Sleep Timer Service"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Show a notification for Y seconds if inactivity exceeds threshold"
+msgstr ""
+
+msgctxt "#32020"
+msgid "Sleep if video is playing"
+msgstr ""
+
+msgctxt "#32021"
+msgid "And inactivity exceeds Z minute(s)"
+msgstr ""
+
+msgctxt "#32022"
+msgid "Sleep if audio is playing"
+msgstr ""
+
+msgctxt "#32023"
+msgid "Still there?"
+msgstr ""
+
+msgctxt "#32024"
+msgid "Yes, continue"
+msgstr ""
+
+msgctxt "#32025"
+msgid "Pause"
+msgstr ""
+
+msgctxt "#32026"
+msgid "All services"
+msgstr ""
+
+msgctxt "#32027"
+msgid "UpNext service"
+msgstr ""
+
+msgctxt "#32028"
+msgid "Show dialog when X minute(s) of the video are remaining"
+msgstr ""
+
+msgctxt "#32029"
+msgid "Watch Now"
+msgstr ""
+
+msgctxt "#32030"
+msgid "Close"
+msgstr ""
+
+msgctxt "#32031"
+msgid "Stop"
+msgstr ""
+
+msgctxt "#32032"
+msgid "Next Episode"
 msgstr ""

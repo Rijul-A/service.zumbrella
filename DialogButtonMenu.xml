@@ -37,7 +37,7 @@
 					<content>
 						<item>
 							<label>Turn controllers off</label>
-							<onclick>RunScript(service.bluetooth.watcher,disconnect_now_back)</onclick>
+							<onclick>RunScript(service.zumbrella,disconnect_now_back)</onclick>
 						</item>
 						<item>
 							<label>13012</label>

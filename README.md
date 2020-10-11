@@ -1,4 +1,7 @@
-service.bluetooth.watcher
+service.zumbrella
 ================
 
-Service addon for Kodi to check for inactivity and turn off selected Bluetooth devices and optionally display a notification to that effect
+Service addon for Kodi with three features
+* Inactivity timeout for Bluetooth controllers
+* Sleep timer, again based on inactivity
+* UpNext notification when the current video is about to end
