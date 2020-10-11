@@ -14,10 +14,13 @@ def log(file_name, msg, mode = None):
     mode = None or logMode
     xbmc.log("[{}_{}]: {} - {}".format(__PLUGIN_ID__, __PLUGIN_VERSION__, file_name, msg), mode)
 
-def read_int_setting(addon, setting_id, reset = True):
-    var = int(addon.getSetting(setting_id)) * (60 if reset else 1)
-    if reset and var == 0:
-        var = 60
+def read_float_setting(addon, setting_id):
+    return float(addon.getSetting(setting_id))
+
+def read_int_setting(addon, setting_id, minutes_to_seconds = True):
+    var = int(addon.getSetting(setting_id)) * (60 if minutes_to_seconds else 1)
+    if minutes_to_seconds and var == 0:
+        var = 15
     return var
 
 def read_bool_setting(addon, setting_id):

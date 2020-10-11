@@ -125,7 +125,7 @@ msgid "UpNext service"
 msgstr ""
 
 msgctxt "#32028"
-msgid "Show dialog when X minute(s) of the video are remaining"
+msgid "Show UpNext dialog when X % of the video is completed"
 msgstr ""
 
 msgctxt "#32029"
@@ -141,5 +141,5 @@ msgid "Stop"
 msgstr ""
 
 msgctxt "#32032"
-msgid "Next Episode"
+msgid "Next Up"
 msgstr ""

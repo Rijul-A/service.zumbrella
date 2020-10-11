@@ -30,6 +30,6 @@
 		<setting id="audio_inactivity_threshold" label="32021" type="slider" default="30" range="5,5,420" enable="eq(-1,true)"/>
 	</category>
 	<category label="32027">
-		<setting id="last_x_minutes" label="32028" type="slider" default="3" range="1,1,10"/>
+		<setting id="min_video_completion_percentage" label="32028" type="slider" default="90" range="80,0.5,100"/>
 	</category>
 </settings>

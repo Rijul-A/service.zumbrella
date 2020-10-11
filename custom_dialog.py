@@ -23,7 +23,10 @@ class CustomDialog(xbmcgui.WindowXMLDialog):
         self.setProperty('label', label)
 
     def update_progress(self, percent):
-        self.percentControl.setPercent(round(percent * 100, 0))
+        try:
+            self.percentControl.setPercent(round(percent * 100, 0))
+        except AttributeError:
+            pass
 
     def onClick(self, controlId):
         self.lastControlClicked = controlId

@@ -75,19 +75,22 @@ class StillThereService:
             self.log('Setting no title on the dialog')
             self.custom_dialog.set_label('')
             return
-        if 'season' in item:
+        if 'showtitle' in item:
             showtitle = item.get('showtitle').encode('utf-8')
-            season    = "%02d" % int(item.get('season'))
-            episode   = "%02d" % int(item.get('episode'))
             title     = item.get('title').encode('utf-8')
-            label     = '{} | S{}E{} | {}'.format(showtitle, season, episode, title)
+            if showtitle:
+                season    = "%02d" % int(item.get('season'))
+                episode   = "%02d" % int(item.get('episode'))
+                label     = '{0} {1} S{2}E{3} {1} {4}'.format(showtitle, u"\u2022", season, episode, title)
+            else:
+                label = title
         elif 'artist' in item:   #music
             title     = item.get('title').encode('utf-8')
             artist    = item.get('artist').encode('utf-8')
             album     = item.get('album').encode('utf-8')
-            label     = '{} - {} - {}'.format(title, artist, album)
+            label     = '{0} {1} {2} {1} {3}'.format(title, u"\u2022", artist, album)
         else:                   #item type will be file, movie, musicvideo, livetv
-            label     = title
+            label     = item.get('title').encode('utf-8')
         self.custom_dialog.set_label(label)
         self.log('Successfully set title on the dialog')
 
