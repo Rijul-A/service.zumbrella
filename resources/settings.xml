@@ -8,7 +8,7 @@
 		<setting id="show_gui" label="32003" type="action" action="RunScript(service.zumbrella,show_gui)"/>
 		<setting id="disconnect_now" label="32012" type="action" action="RunScript(service.zumbrella,disconnect_now)"/>
 		<setting type="sep"/>
-		<setting id="devices_to_disconnect" label="32004" type="text" visible="false" default=""/>
+		<setting id="devices_to_disconnect" label="32004" type="text" visible="false" default="{}"/>
 		<setting id="inactivity_threshold" label="32002" type="slider" default="20" range="5,5,60"/>
 		<setting id="use_no_media_threshold" label="32015" type="bool" default="true"/>
 		<setting id="inactivity_threshold_no_media" label="32016" type="slider" default="5" range="5,5,60" enable="eq(-1,true)"/>

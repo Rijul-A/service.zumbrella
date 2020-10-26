@@ -57,10 +57,7 @@ class BluetoothService:
         self.notify = common.read_bool_setting(self.addon, BluetoothService.__SETTING_NOTIFY__)
         self.notify_sound = common.read_bool_setting(self.addon, BluetoothService.__SETTING_NOTIFY_SOUND__)
         self.notify_sound_playing = common.read_bool_setting(self.addon, BluetoothService.__SETTING_NOTIFY_SOUND_PLAYING__)
-        try:
-            self.devices_to_disconnect = json.loads(self.addon.getSettingString(BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__))
-        except ValueError:
-            self.devices_to_disconnect = {}
+        self.devices_to_disconnect = json.loads(self.addon.getSettingString(BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__))
         self.log('Loaded settings')
         self.log('inactivity_threshold: {}'.format(self.inactivity_threshold))
         self.log('use_no_media_threshold: {}'.format(self.use_no_media_threshold))
@@ -168,7 +165,8 @@ class BluetoothService:
                         self.log('Device {} ({}) disconnected successfully, notifying'.format(device_name, device_mac))
                         oneDeviceDisconnected = True
                         if force:
-                            self.notify_function(self.addon.getLocalizedString(BluetoothService.__STRING_PLUGIN_NAME_ID__), "{}: {} ({})".format(self.addon.getLocalizedString(BluetoothService.__STRING_DEVICE_DISCONNECTED_DEMAND_ID__), device_name, device_mac), True)
+                            #self.notify_function(self.addon.getLocalizedString(BluetoothService.__STRING_PLUGIN_NAME_ID__), "{}: {} ({})".format(self.addon.getLocalizedString(BluetoothService.__STRING_DEVICE_DISCONNECTED_DEMAND_ID__), device_name, device_mac), True)
+                            pass    #this is now done via the OS
                         else:
                             self.notify_disconnection_success(device_name, device_mac)
                     else:
@@ -185,3 +183,10 @@ class BluetoothService:
 
     def log(self, msg):
         common.log(self.__class__.__name__, msg)
+
+    def onScreensaverActivated(self):
+        if self.use_screensaver:
+            self.log('Screensaver detected, turning off devices if eligible')
+            self.disconnect_possible_devices()
+        else:
+            self.log('Screensaver detected but not turning off eligible devices because setting is off')

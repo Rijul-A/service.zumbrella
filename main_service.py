@@ -28,9 +28,9 @@ class MainService:
 
     def onScreensaverActivated(self):
         self.log('Received screensaver notification')
-        if self.use_screensaver:
-            self.log('Disconnecting possible devices')
-            self.disconnect_possible_devices()
+        self.bluetooth_service.onScreensaverActivated()
+        self.still_there_service.onScreensaverActivated()
+        self.upnext_service.onScreensaverActivated()
 
     def sleep(self, duration = None):
         if duration is None:

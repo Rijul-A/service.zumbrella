@@ -41,10 +41,7 @@ def show_gui(thisAddon):
     log('Loaded thisAddon object')
     dialog = xbmcgui.Dialog()
     log('Created dialog object')
-    try:
-        saved_devices_to_disconnect = json.loads(thisAddon.getSettingString(BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__))
-    except ValueError:
-        saved_devices_to_disconnect = {}
+    saved_devices_to_disconnect = json.loads(thisAddon.getSettingString(BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__))
     log('Loaded saved_devices_to_disconnect {}'.format(saved_devices_to_disconnect))
     possible_devices_to_disconnect = get_devices_dict()
     log('Loaded possible_devices_to_disconnect {}'.format(possible_devices_to_disconnect))

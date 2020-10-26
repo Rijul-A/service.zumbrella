@@ -155,3 +155,6 @@ class StillThereService:
 
     def log(self, msg):
         common.log(self.__class__.__name__, msg)
+
+    def onScreensaverActivated(self):
+        pass
