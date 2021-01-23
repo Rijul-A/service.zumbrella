@@ -56,10 +56,10 @@ class StillThereService:
             return
         self.log('Found active player with id: {}'.format(playerid))
         if xbmc.getCondVisibility('Player.HasAudio'):
-            properties = ['title', 'album', 'artist']
+            properties = ['title', 'album', 'artist', 'file']
             id = 'AudioGetItem'
         else:
-            properties = ['showtitle', 'season', 'episode', 'title']
+            properties = ['showtitle', 'season', 'episode', 'title', 'file']
             id = 'VideoGetItem'
         requested_params = dict(playerid = playerid, properties = properties)
         result = common.json_rpc(method = 'Player.GetItem', params = requested_params, id = id)
@@ -75,7 +75,7 @@ class StillThereService:
             self.log('Setting no title on the dialog')
             self.custom_dialog.set_label('')
             return
-        if 'showtitle' in item:
+        if 'showtitle' in item:                     # TV show
             showtitle = item.get('showtitle').encode('utf-8')
             title     = item.get('title').encode('utf-8')
             if showtitle:
@@ -84,13 +84,15 @@ class StillThereService:
                 label     = '{0} {1} S{2}E{3} {1} {4}'.format(showtitle, u"\u2022", season, episode, title)
             else:
                 label = title
-        elif 'artist' in item:   #music
+        elif 'artist' in item:                  # music
             title     = item.get('title').encode('utf-8')
             artist    = item.get('artist').encode('utf-8')
             album     = item.get('album').encode('utf-8')
             label     = '{0} {1} {2} {1} {3}'.format(title, u"\u2022", artist, album)
-        else:                   #item type will be file, movie, musicvideo, livetv
+        elif 'title' in item:                   # item type will be movie, musicvideo, livetv
             label     = item.get('title').encode('utf-8')
+        else:                                   # playing a file
+            label     = item.get('file').encode('utf-8')
         self.custom_dialog.set_label(label)
         self.log('Successfully set title on the dialog')
 

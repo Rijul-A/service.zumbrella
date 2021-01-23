@@ -9,6 +9,19 @@ from bluetooth_service import BluetoothService
 from still_there_service import StillThereService
 from upnext_service import UpNextService
 
+class Player(xbmc.Player):
+    def __init__(self, *args, **kwargs):
+        xbmc.Player.__init__(self)
+        self.log('Instantiating monitor')
+        self.avStartedAction = kwargs.get('avStartedAction')
+
+    def onAVStarted(self):
+        if self.avStartedAction:
+            self.avStartedAction()
+
+    def log(self, msg):
+        common.log(self.__class__.__name__, msg)
+
 class MainService:
     __SETTING_LOG_MODE_BOOL__ = "debug"
     __SETTING_CHECK_TIME__ = 'check_time'
@@ -16,6 +29,7 @@ class MainService:
     def __init__(self):
         self.addon = xbmcaddon.Addon()
         self.monitor = MainMonitor(reloadAction = self.onSettingsChanged, screensaverAction = self.onScreensaverActivated)
+        self.player = Player(avStartedAction = self.onAVStarted)
         self.bluetooth_service = BluetoothService(self.addon)
         self.still_there_service = StillThereService(self.addon, self.monitor, 'still_there.xml')
         self.upnext_service = UpNextService(self.addon, self.monitor, 'up_next.xml')
@@ -31,6 +45,12 @@ class MainService:
         self.bluetooth_service.onScreensaverActivated()
         self.still_there_service.onScreensaverActivated()
         self.upnext_service.onScreensaverActivated()
+
+    def onAVStarted(self):
+        self.log('Received playback started notification')
+        if xbmc.getCondVisibility('Player.HasVideo'):
+            self.log('Detected that it is video')
+            self.player.showSubtitles(True)
 
     def sleep(self, duration = None):
         if duration is None:
