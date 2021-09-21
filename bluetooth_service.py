@@ -76,12 +76,18 @@ class BluetoothService:
         self.log('devices_to_disconnect: {}'.format(self.devices_to_disconnect))
 
     def disconnect_device(self, device_mac):
-        command_output = subprocess.check_output(BluetoothService.__DISCONNECT_DEVICE__.format(device_mac), shell = True).decode('utf-8')
-        return BluetoothService.__DISCONNECT_DEVICE_SUCCESSFUL__ in command_output
+        try:
+            command_output = subprocess.check_output(BluetoothService.__DISCONNECT_DEVICE__.format(device_mac), shell = True).decode('utf-8')
+            return BluetoothService.__DISCONNECT_DEVICE_SUCCESSFUL__ in command_output
+        except subprocess.CalledProcessError:
+            return True # assume success
 
     def device_connected(self, device_mac):
-        command_output = subprocess.check_output(BluetoothService.__GET_DEVICE_INFO__.format(device_mac), shell = True).decode('utf-8')
-        return BluetoothService.__IS_DEVICE_CONNECTED__ in command_output
+        try:
+            command_output = subprocess.check_output(BluetoothService.__GET_DEVICE_INFO__.format(device_mac), shell = True).decode('utf-8')
+            return BluetoothService.__IS_DEVICE_CONNECTED__ in command_output
+        except subprocess.CalledProcessError:
+            return False    # avoid further calls until this is resolved
 
     def notify_function(self, title, message, sound):
         self.dialog.notification(title, message, sound = sound)

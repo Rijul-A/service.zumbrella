@@ -28,7 +28,10 @@ def uniquify(mylist):
 def get_devices_dict():
     #k, v = device_name, device_mac
     log('Creating dictionary of devies')
-    command_output = subprocess.check_output(BluetoothService.__GET_DEVICES__, shell = True).decode('utf-8')[:-1]
+    try:
+        command_output = subprocess.check_output(BluetoothService.__GET_DEVICES__, shell = True).decode('utf-8')[:-1]
+    except subprocess.CalledProcessError:
+        return {}   # blank dictionary because bluez is not available
     devices_dict = dict(zip(uniquify([element[25:] for element in command_output.split('\n')]), [element.split(' ')[1] for element in command_output.split('\n')]))
     log('Created devices dictionary {}'.format(json.dumps(devices_dict)))
     return devices_dict
