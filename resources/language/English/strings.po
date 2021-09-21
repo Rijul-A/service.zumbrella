@@ -80,6 +80,14 @@ msgctxt "#32016"
 msgid " - In which case, use Y = "
 msgstr ""
 
+msgctxt "#32033"
+msgid "Or, unless media is paused"
+msgstr ""
+
+msgctxt "#32034"
+msgid " - In which case, use Y = "
+msgstr ""
+
 msgctxt "#32017"
 msgid "Bluetooth Service"
 msgstr ""

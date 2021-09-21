@@ -18,6 +18,8 @@ class BluetoothService:
     __SETTING_INACTIVITY_THRESHOLD__ = 'inactivity_threshold'
     __SETTING_USE_NO_MEDIA_THRESHOLD__ = 'use_no_media_threshold'
     __SETTING_INACTIVITY_THRESHOLD_NO_MEDIA__ = 'inactivity_threshold_no_media'
+    __SETTING_USE_PAUSED_MEDIA_THRESHOLD__ = 'use_paused_media_threshold'
+    __SETTING_INACTIVITY_THRESHOLD_PAUSED_MEDIA__ = 'inactivity_threshold_paused_media'
     __SETTING_MIN_CONNECTION_THRESHOLD__ = 'min_connection_threshold'
     __SETTING_NOTIFY__ = "notify"
     __SETTING_NOTIFY_SOUND__ = "notify_sound"
@@ -52,6 +54,8 @@ class BluetoothService:
         self.inactivity_threshold = common.read_int_setting(self.addon, BluetoothService.__SETTING_INACTIVITY_THRESHOLD__)
         self.use_no_media_threshold = common.read_bool_setting(self.addon, BluetoothService.__SETTING_USE_NO_MEDIA_THRESHOLD__)
         self.inactivity_threshold_no_media = common.read_int_setting(self.addon, BluetoothService.__SETTING_INACTIVITY_THRESHOLD_NO_MEDIA__)
+        self.use_paused_media_threshold = common.read_bool_setting(self.addon, BluetoothService.__SETTING_USE_PAUSED_MEDIA_THRESHOLD__)
+        self.inactivity_threshold_paused_media = common.read_int_setting(self.addon, BluetoothService.__SETTING_INACTIVITY_THRESHOLD_PAUSED_MEDIA__)
         self.min_connection_threshold = common.read_int_setting(self.addon, BluetoothService.__SETTING_MIN_CONNECTION_THRESHOLD__)
         self.use_screensaver = common.read_bool_setting(self.addon, BluetoothService.__SETTING_USE_SCREENSAVER__)
         self.notify = common.read_bool_setting(self.addon, BluetoothService.__SETTING_NOTIFY__)
@@ -62,6 +66,8 @@ class BluetoothService:
         self.log('inactivity_threshold: {}'.format(self.inactivity_threshold))
         self.log('use_no_media_threshold: {}'.format(self.use_no_media_threshold))
         self.log('inactivity_threshold_no_media: {}'.format(self.inactivity_threshold_no_media))
+        self.log('use_paused_media_threshold: {}'.format(self.use_paused_media_threshold))
+        self.log('inactivity_threshold_paused_media: {}'.format(self.inactivity_threshold_paused_media))
         self.log('min_connection_threshold: {}'.format(self.min_connection_threshold))
         self.log('use_screensaver: {}'.format(self.use_screensaver))
         self.log('notify: {}'.format(self.notify))
@@ -132,19 +138,28 @@ class BluetoothService:
 
     def do_check(self, inactivity_seconds):
         if self.has_devices_to_disconnect():
-            self.log('Checking for inactivity')
-            if self.use_no_media_threshold:
-                self.log('use_no_media_threshold is True, checking if media is playing')
-                hasMedia = xbmc.getCondVisibility('Player.HasMedia')    #if media exists
-                if hasMedia:
-                    self.log('We have media, using default threshold of {} seconds'.format(self.inactivity_threshold))
+            self.log('Calculating inactivity threshold')
+            if xbmc.getCondVisibility('Player.HasMedia'):
+                self.log('Player has media')
+                if xbmc.getCondVisibility('Player.Playing'):
+                    self.log('Player is playing, using default threshold of {} seconds'.format(self.inactivity_threshold))
                     threshold = self.inactivity_threshold
                 else:
-                    self.log('We have no media, using secondary threshold of {} seconds'.format(self.inactivity_threshold_no_media))
-                    threshold = self.inactivity_threshold_no_media
+                    self.log('Player is paused')
+                    if self.use_paused_media_threshold:
+                        self.log('use_paused_media_threshold is True, using paused-media threshold of {} seconds'.format(self.inactivity_threshold_paused_media))
+                        threshold = self.inactivity_threshold_paused_media
+                    else:
+                        self.log('use_paused_media_threshold is False, using default threshold of {} seconds'.format(self.inactivity_threshold))
+                        threshold = self.inactivity_threshold
             else:
-                self.log('use_no_media_threshold is False, using default threshold of {} seconds'.format(self.inactivity_threshold))
-                threshold = self.inactivity_threshold
+                self.log('Player has no media')
+                if self.use_no_media_threshold:
+                    self.log('use_no_media_threshold is True, using no-media threshold of {} seconds'.format(self.inactivity_threshold_no_media))
+                    threshold = self.inactivity_threshold_no_media
+                else:
+                    self.log('use_no_media_threshold is False, using default threshold of {} seconds'.format(self.inactivity_threshold))
+                    threshold = self.inactivity_threshold
             if inactivity_seconds >= threshold:
                 self.log('Inactive time of {} seconds is >= the threshold of {} seconds, calling disconnect_possible_devices'.format(inactivity_seconds, threshold))
                 self.disconnect_possible_devices()

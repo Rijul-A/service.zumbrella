@@ -12,6 +12,8 @@
 		<setting id="inactivity_threshold" label="32002" type="slider" default="20" range="5,5,60"/>
 		<setting id="use_no_media_threshold" label="32015" type="bool" default="true"/>
 		<setting id="inactivity_threshold_no_media" label="32016" type="slider" default="5" range="5,5,60" enable="eq(-1,true)"/>
+		<setting id="use_paused_media_threshold" label="32033" type="bool" default="true"/>
+		<setting id="inactivity_threshold_paused_media" label="32034" type="slider" default="5" range="5,5,60" enable="eq(-1,true)"/>
 		<setting id="min_connection_threshold" label="32011" type="slider" default="2" range="0,1,10"/>
 		<setting type="sep"/>
 		<setting id="notify" label="32006" type="bool" default="true"/>
