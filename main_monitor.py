@@ -1,6 +1,6 @@
 import os
 
-import xbmc
+from kodi_six import xbmc
 
 import common
 

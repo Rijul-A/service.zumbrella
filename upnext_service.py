@@ -1,7 +1,7 @@
 import os
 from threading import Timer
 
-import xbmc
+from kodi_six import xbmc
 
 from still_there_service import StillThereService
 from custom_dialog import CustomDialog

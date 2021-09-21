@@ -1,7 +1,6 @@
 import os
 
-import xbmc
-import xbmcaddon
+from kodi_six import xbmc, xbmcaddon
 
 import common
 from main_monitor import MainMonitor
@@ -36,7 +35,7 @@ class MainService:
         self.refresh_settings()
 
     def onSettingsChanged(self):
-        common.logMode = xbmc.LOGNOTICE #activate debug mode
+        common.logMode = xbmc.LOGINFO #activate debug mode
         self.log('Received notification to reload settings, doing so now')
         self.__init__()
 
@@ -69,7 +68,7 @@ class MainService:
         self.log('debugMode: {}'.format(debugMode))
         if not debugMode:
             self.log('Addon going quiet due to debugMode')
-        common.logMode = xbmc.LOGNOTICE if debugMode else xbmc.LOGDEBUG #now go quiet if needed
+        common.logMode = xbmc.LOGINFO if debugMode else xbmc.LOGDEBUG #now go quiet if needed
 
     def do_checks(self):
         self.sleep()

@@ -1,13 +1,13 @@
 import json
 
-import xbmc
+from kodi_six import xbmc
 
 __PLUGIN_ID__ = 'service.zumbrella'
 __PLUGIN_VERSION__ = 'v0.0.2'
 
 __SETTING_SHOW_GUI__ = 'show_gui'
 
-logMode = xbmc.LOGNOTICE
+logMode = xbmc.LOGINFO
 
 def log(file_name, msg, mode = None):
     global logMode

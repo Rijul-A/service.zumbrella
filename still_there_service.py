@@ -1,6 +1,6 @@
 import os
 
-import xbmc
+from kodi_six import xbmc
 
 import common
 from custom_dialog import CustomDialog
@@ -18,7 +18,7 @@ class StillThereService:
         self.log('Creating object')
         self.addon = addon  #to load settings
         self.monitor = monitor  #to sleep
-        self.custom_dialog = CustomDialog(xmlname, self.addon.getAddonInfo('path').decode('utf-8'), 'default', '1080i')
+        self.custom_dialog = CustomDialog(xmlname, self.addon.getAddonInfo('path'), 'default', '1080i')
 
     def refresh_settings(self):
         self.log('Reading settings')

@@ -2,10 +2,9 @@ import sys
 import json
 import os
 import subprocess
+import six
 
-import xbmc
-import xbmcgui
-import xbmcaddon
+from kodi_six import xbmc, xbmcgui, xbmcaddon
 
 import common
 from bluetooth_service import BluetoothService
@@ -46,28 +45,28 @@ def show_gui(thisAddon):
     possible_devices_to_disconnect = get_devices_dict()
     log('Loaded possible_devices_to_disconnect {}'.format(possible_devices_to_disconnect))
     #remove items which were saved but are now no longer paired
-    for device_name, device_mac in saved_devices_to_disconnect.iteritems():
-        if device_mac not in possible_devices_to_disconnect.values():
+    for device_name, device_mac in six.iteritems(saved_devices_to_disconnect):
+        if device_mac not in six.itervalues(possible_devices_to_disconnect):
             log('Found unpaired device {}, removing it from saved devices'.format(device_mac))
             saved_devices_to_disconnect.pop(device_name)
     #create preselect array
     log('Creating preselect array')
     preselect = []
     i = -1
-    for device_name, device_mac in possible_devices_to_disconnect.iteritems():
+    for device_name, device_mac in six.iteritems(possible_devices_to_disconnect):
         i = i + 1
-        if device_mac in saved_devices_to_disconnect.values():
+        if device_mac in six.itervalues(saved_devices_to_disconnect):
             log('Found pre-selected device {}'.format(device_mac))
             preselect.append(i)
     #show dialog with multiselect and preselect
     log('Displaying multiselect dialog')
     returned_devices_to_disconnect = dialog.multiselect(thisAddon.getLocalizedString(BluetoothService.__STRING_DEVICES_TO_DISCONNECT_ID__),
-        [xbmcgui.ListItem("{} ({})".format(device_name, device_mac)) for device_name, device_mac in possible_devices_to_disconnect.iteritems()], preselect = preselect)
+        [xbmcgui.ListItem("{} ({})".format(device_name, device_mac)) for device_name, device_mac in six.iteritems(possible_devices_to_disconnect)], preselect = preselect)
     if returned_devices_to_disconnect is None:
         log('Multiselect dialog was canceled, saving old config {}'.format(saved_devices_to_disconnect))
         thisAddon.setSettingString(BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__, json.dumps(saved_devices_to_disconnect))
     else:
-        to_save_devices = {list(possible_devices_to_disconnect.keys())[element]: list(possible_devices_to_disconnect.values())[element] for element in returned_devices_to_disconnect}
+        to_save_devices = {list(six.iterkeys(possible_devices_to_disconnect))[element]: list(six.itervalues(possible_devices_to_disconnect))[element] for element in returned_devices_to_disconnect}
         log('Saving new config {}'.format(to_save_devices))
         thisAddon.setSettingString(BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__, json.dumps(to_save_devices))
 

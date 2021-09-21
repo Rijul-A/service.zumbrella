@@ -4,9 +4,9 @@ import codecs
 import json
 import datetime as dt
 import re
+import six
 
-import xbmc
-import xbmcgui
+from kodi_six import xbmc, xbmcgui
 
 import common
 
@@ -157,7 +157,7 @@ class BluetoothService:
         self.log('In the disconnect_possible_devices function')
         if force or (self.check_duration_eligibility() == BluetoothService.__DISCONNECTION_ELIGIBILITY_YES__):
             oneDeviceDisconnected = False
-            for device_name, device_mac in self.devices_to_disconnect.iteritems():
+            for device_name, device_mac in six.iteritems(self.devices_to_disconnect):
                 self.log('Checking for device {} ({})'.format(device_name, device_mac))
                 if self.device_connected(device_mac):
                     self.log('Device {} ({}) was connected, disconnecting it now'.format(device_name, device_mac))

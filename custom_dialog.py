@@ -1,5 +1,4 @@
-import xbmc
-import xbmcgui
+from kodi_six import xbmcgui
 
 class CustomDialog(xbmcgui.WindowXMLDialog):
     ACTION_PLAYER_STOP = 13
