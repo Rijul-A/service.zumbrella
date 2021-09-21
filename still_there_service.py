@@ -1,4 +1,5 @@
 import os
+import six
 
 from kodi_six import xbmc
 
@@ -76,8 +77,8 @@ class StillThereService:
             self.custom_dialog.set_label('')
             return
         if 'showtitle' in item:                     # TV show
-            showtitle = item.get('showtitle').encode('utf-8')
-            title     = item.get('title').encode('utf-8')
+            showtitle = item.get('showtitle') if six.PY3 else item.get('showtitle').encode('utf-8')
+            title     = item.get('title') if six.PY3 else item.get('title').encode('utf-8')
             if showtitle:
                 season    = "%02d" % int(item.get('season'))
                 episode   = "%02d" % int(item.get('episode'))
@@ -85,14 +86,14 @@ class StillThereService:
             else:
                 label = title
         elif 'artist' in item:                  # music
-            title     = item.get('title').encode('utf-8')
-            artist    = item.get('artist').encode('utf-8')
-            album     = item.get('album').encode('utf-8')
+            title     = item.get('title') if six.PY3 else item.get('title').encode('utf-8')
+            artist    = item.get('artist') if six.PY3 else item.get('artist').encode('utf-8')
+            album     = item.get('album') if six.PY3 else item.get('album').encode('utf-8')
             label     = '{0} {1} {2} {1} {3}'.format(title, u"\u2022", artist, album)
         elif 'title' in item:                   # item type will be movie, musicvideo, livetv
-            label     = item.get('title').encode('utf-8')
+            label     = item.get('title') if six.PY3 else item.get('title').encode('utf-8')
         else:                                   # playing a file
-            label     = item.get('file').encode('utf-8')
+            label     = item.get('file') if six.PY3 else item.get('file').encode('utf-8')
         self.custom_dialog.set_label(label)
         self.log('Successfully set title on the dialog')
 
