@@ -1,5 +1,6 @@
 import os
 import six
+import time
 
 from kodi_six import xbmc
 
@@ -20,6 +21,7 @@ class StillThereService:
         self.addon = addon  #to load settings
         self.monitor = monitor  #to sleep
         self.custom_dialog = CustomDialog(xmlname, self.addon.getAddonInfo('path'), 'default', '1080i')
+        self.last_continue_click_time = None
 
     def refresh_settings(self):
         self.log('Reading settings')
@@ -123,7 +125,11 @@ class StillThereService:
                 self.log('It is something unsupported by this addon')
                 return
             if threshold is not None:
-                if inactivity_seconds >= threshold:
+                condition = inactivity_seconds >= threshold and \
+                            ((self.last_continue_click_time is None) or \
+                             (self.last_continue_click_time is not None and \
+                              time.time() - self.last_continue_click_time >= threshold / 2))
+                if condition:
                     self.log('Inactive time of {} seconds is >= than the threshold of {} seconds, showing the GUI'.format(inactivity_seconds, threshold))
                     self.update_label()
                     self.custom_dialog.show()
@@ -135,7 +141,8 @@ class StillThereService:
                         self.log('Percentage of {} seconds remaning is {}'.format(self.notification_duration, round(percent*100, 2)))
                         self.custom_dialog.update_progress(percent)
                     if self.custom_dialog.lastControlClicked == CustomDialog.__LEFT_BUTTON_ID__:
-                        self.log('Continue was pressed, which means do nothing')
+                        self.log('Continue was pressed, which means note down this time')
+                        self.last_continue_click_time = time.time()
                     elif self.custom_dialog.lastControlClicked == CustomDialog.__RIGHT_BUTTON_ID__:
                         self.log('Pause was requested')
                         xbmc.Player().pause()
