@@ -146,7 +146,7 @@ class UpNextService(StillThereService):
                 new_position, has_next_item = self.has_next_item()
             if (self.custom_dialog.lastControlClicked == CustomDialog.__LEFT_BUTTON_ID__):
                 self.log('Watching next episode now')
-                xbmc.Player().seekTime(total_time)    #seek to end, watch now
+                xbmc.Player().playnext()
             elif (self.custom_dialog.lastControlClicked == CustomDialog.__RIGHT_BUTTON_ID__):
                 self.log('Terminating playback')
                 xbmc.Player().stop()                                    #clicked on stop
