@@ -132,6 +132,7 @@ class UpNextService(StillThereService):
             self.custom_dialog.show()
             new_position, has_next_item = self.has_next_item()
             while((self.custom_dialog.lastControlClicked == CustomDialog.__INVALID_BUTTON_ID__) and (video_completion_percentage < 1.) and (old_position == new_position) and xbmc.getCondVisibility('Player.HasVideo') and (has_next_item)):
+                # not blocking
                 self.sleep(0.01)
                 try:
                     current_time   = xbmc.Player().getTime()
@@ -167,3 +168,10 @@ class UpNextService(StillThereService):
     #overriden for the __file__ var
     def log(self, msg):
         common.log(self.__class__.__name__, msg)
+
+    # not yet implemented
+    def onPlaybackPaused(self):
+        return
+
+    def onPlaybackResumed(self):
+        return

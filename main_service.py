@@ -13,10 +13,20 @@ class Player(xbmc.Player):
         xbmc.Player.__init__(self)
         self.log('Instantiating monitor')
         self.avStartedAction = kwargs.get('avStartedAction')
+        self.onPlaybackPausedAction = kwargs.get('onPlaybackPausedAction')
+        self.onPlaybackResumedAction = kwargs.get('onPlaybackResumedAction')
 
     def onAVStarted(self):
         if self.avStartedAction:
             self.avStartedAction()
+
+    def onPlaybackPaused(self):
+        if self.onPlaybackPausedAction:
+            self.onPlaybackPausedAction()
+
+    def onPlaybackResumed(self):
+        if self.onPlaybackResumedAction:
+            self.onPlaybackResumedAction()
 
     def log(self, msg):
         common.log(self.__class__.__name__, msg)
@@ -28,11 +38,18 @@ class MainService:
     def __init__(self):
         self.addon = xbmcaddon.Addon()
         self.monitor = MainMonitor(reloadAction = self.onSettingsChanged, screensaverAction = self.onScreensaverActivated)
-        self.player = Player(avStartedAction = self.onAVStarted)
+        self.player = Player(avStartedAction = self.onAVStarted, onPlaybackPaused = self.onPlaybackPaused, onPlaybackResumed = self.onPlaybackResumed)
         self.bluetooth_service = BluetoothService(self.addon)
         self.still_there_service = StillThereService(self.addon, self.monitor, 'still_there.xml')
         self.upnext_service = UpNextService(self.addon, self.monitor, 'up_next.xml')
         self.refresh_settings()
+
+    def onPlaybackPaused(self):
+        self.upnext_service.onPlaybackPaused()
+
+    def onPlaybackResumed(self):
+        self.still_there_service.onPlaybackResumed()
+        self.upnext_service.onPlaybackResumed()
 
     def onSettingsChanged(self):
         common.logMode = xbmc.LOGINFO #activate debug mode

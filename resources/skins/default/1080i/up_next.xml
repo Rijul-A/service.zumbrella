@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
-	<!-- still_there -->
+	<!-- up_next -->
 	<defaultcontrol always="true">3012</defaultcontrol>
 	<onload>Dialog.Close(fullscreeninfo,true)</onload>
 	<onload>Dialog.Close(videoosd,true)</onload>
@@ -32,7 +32,7 @@
 				<width>550</width>
 				<height>107</height>
 
-				<!-- Heading -->
+				<!-- Next Up -->
 				<control type="label">
 					<left>10</left>
 					<top>10</top>
@@ -54,7 +54,7 @@
 					<label>$INFO[Window.Property(label)]</label>
 				</control>
 
-				<!-- Continue watching -->
+				<!-- Watch Now -->
 				<control type="button" id="3012">
 					<left>10</left>
 					<top>70</top>
@@ -69,8 +69,8 @@
 					<texturefocus colordiffuse="FFFFFFFF">focus27c.png</texturefocus>
 				</control>
 
-        <!-- Hide -->
-        <control type="button" id="3014">
+        		<!-- Close -->
+        		<control type="button" id="3014">
 					<left>190</left>
 					<top>70</top>
 					<height>27</height>
@@ -84,7 +84,7 @@
 					<texturefocus colordiffuse="FFFFFFFF">focus27c.png</texturefocus>
 				</control>
 
-				<!-- Close/Stop -->
+				<!-- Stop -->
 				<control type="button" id="3013">
 					<left>370</left>
 					<top>70</top>
@@ -92,7 +92,7 @@
 					<width>170</width>
 					<align>center</align>
 					<font>Font27</font>
-          <label>$ADDON[service.zumbrella 32031]</label>
+          			<label>$ADDON[service.zumbrella 32031]</label>
 					<oninfo>noop</oninfo>
 					<onleft>3014</onleft>
 					<onright>3012</onright>

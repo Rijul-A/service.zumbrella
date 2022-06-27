@@ -32,7 +32,7 @@
 				<width>550</width>
 				<height>107</height>
 
-				<!-- Heading -->
+				<!-- Still there? -->
 				<control type="label">
 					<left>10</left>
 					<top>10</top>
@@ -69,7 +69,7 @@
 					<texturefocus colordiffuse="FFFFFFFF">focus27c.png</texturefocus>
 				</control>
 
-				<!-- Close/Stop -->
+				<!-- Pause -->
 				<control type="button" id="3013">
 					<right>10</right>
 					<top>70</top>
@@ -77,7 +77,7 @@
 					<width>260</width>
 					<align>center</align>
 					<font>Font27</font>
-          <label>$ADDON[service.zumbrella 32025]</label>
+          			<label>$ADDON[service.zumbrella 32025]</label>
 					<oninfo>noop</oninfo>
 					<onleft>3012</onleft>
 					<onright>3012</onright>

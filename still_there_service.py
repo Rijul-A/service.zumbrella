@@ -168,3 +168,7 @@ class StillThereService:
 
     def onScreensaverActivated(self):
         pass
+
+    def onPlaybackResumed(self):
+        self.log('Playback resumed, saving the time')
+        self.last_continue_click_time = time.time()
