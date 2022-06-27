@@ -48,10 +48,13 @@ def show_gui(thisAddon):
     possible_devices_to_disconnect = get_devices_dict()
     log('Loaded possible_devices_to_disconnect {}'.format(possible_devices_to_disconnect))
     #remove items which were saved but are now no longer paired
+    saved_devices_to_disconnect_final = {}
     for device_name, device_mac in six.iteritems(saved_devices_to_disconnect):
         if device_mac not in six.itervalues(possible_devices_to_disconnect):
             log('Found unpaired device {}, removing it from saved devices'.format(device_mac))
-            saved_devices_to_disconnect.pop(device_name)
+        else:
+            saved_devices_to_disconnect_final[device_name] = device_mac
+    saved_devices_to_disconnect = saved_devices_to_disconnect_final
     #create preselect array
     log('Creating preselect array')
     preselect = []
