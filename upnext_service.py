@@ -170,8 +170,8 @@ class UpNextService(StillThereService):
         common.log(self.__class__.__name__, msg)
 
     # not yet implemented
-    def onPlaybackPaused(self):
+    def onPlayBackPaused(self):
         return
 
-    def onPlaybackResumed(self):
+    def onPlayBackResumed(self):
         return
