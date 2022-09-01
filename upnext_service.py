@@ -1,4 +1,3 @@
-import os
 from threading import Timer
 
 from kodi_six import xbmc
