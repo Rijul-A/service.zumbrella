@@ -104,32 +104,31 @@ class StillThereService:
         if not xbmc.getCondVisibility('Player.HasMedia'):
             self.log('No media, not doing anything in check_for_media_inactivity')
             return
-        self.log('We have media, checking if it is playing and if we are supervising')
-        if xbmc.getCondVisibility('Player.Playing'):    #means has media which is not (paused, rewinding, or forwarding)
-            self.log('It is playing')
-            if xbmc.getCondVisibility('Player.HasAudio'):
-                self.log('It is audio')
-                if self.enable_audio_supervision:
-                    threshold = self.audio_inactivity_threshold
-                    self.log('We are supervising it')
-                else:
-                    self.log('We are not supervising it')
-            elif xbmc.getCondVisibility('Player.HasVideo'):
-                self.log('It is video')
-                if self.enable_video_supervision:
-                    threshold = self.video_inactivity_threshold
-                    self.log('We are supervising it')
-                else:
-                    self.log('We are not supervising it')
+        self.log('We have media, checking if we are supervising')
+        if xbmc.getCondVisibility('Player.HasAudio'):
+            self.log('It is audio')
+            if self.enable_audio_supervision:
+                threshold = self.audio_inactivity_threshold
+                self.log('We are supervising it')
             else:
-                self.log('It is something unsupported by this addon')
-                return
-            if threshold is not None:
-                condition = inactivity_seconds >= threshold and \
-                            ((self.last_continue_click_time is None) or \
-                             (self.last_continue_click_time is not None and \
-                              time.time() - self.last_continue_click_time >= threshold / 2))
-                if condition:
+                self.log('We are not supervising it')
+        elif xbmc.getCondVisibility('Player.HasVideo'):
+            self.log('It is video')
+            if self.enable_video_supervision:
+                threshold = self.video_inactivity_threshold
+                self.log('We are supervising it')
+            else:
+                self.log('We are not supervising it')
+        else:
+            self.log('It is something unsupported by this addon')
+            return
+        if threshold is not None:
+            condition = inactivity_seconds >= threshold and \
+                        ((self.last_continue_click_time is None) or \
+                            (self.last_continue_click_time is not None and \
+                            time.time() - self.last_continue_click_time >= threshold / 2))
+            if condition:
+                if xbmc.getCondVisibility('Player.Playing'):
                     self.log('Inactive time of {} seconds is >= than the threshold of {} seconds, showing the GUI'.format(inactivity_seconds, threshold))
                     self.update_label()
                     self.custom_dialog.show()
@@ -157,11 +156,11 @@ class StillThereService:
                             self.log('Media was paused externally, not doing anything')
                     self.custom_dialog.reset()
                 else:
-                    self.log('Inactive time of {} seconds is < than the threshold of {} seconds, not doing anything'.format(inactivity_seconds, threshold))
+                    xbmc.Player().stop()
             else:
-                self.log('Nothing to supervise, skipping')
+                self.log('Inactive time of {} seconds is < than the threshold of {} seconds, not doing anything'.format(inactivity_seconds, threshold))
         else:
-            self.log('It is not playing')
+            self.log('Nothing to supervise, skipping')
 
     def log(self, msg):
         common.log(self.__class__.__name__, msg)
