@@ -151,3 +151,15 @@ msgstr ""
 msgctxt "#32032"
 msgid "Next Up"
 msgstr ""
+
+msgctxt "#32036"
+msgid "Play"
+msgstr ""
+
+msgctxt "#32037"
+msgid "Pause"
+msgstr ""
+
+msgctxt "#32035"
+msgid "Play/Pause"
+msgstr ""

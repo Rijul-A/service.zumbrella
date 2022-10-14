@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 
 import blueman.bluez as bluez
 from blueman.Functions import *
-#from blueman.main.SignalTracker import SignalTracker
-#from blueman.main.Device import Device
+# from blueman.main.SignalTracker import SignalTracker
+# from blueman.main.Device import Device
 from blueman.gui.Notification import Notification
 from blueman.plugins.AppletPlugin import AppletPlugin
 import logging
@@ -18,12 +18,12 @@ class DeviceNotifications(AppletPlugin):
 
     def on_load(self):
         pass
-        #self.signals = SignalTracker()
-        #self.signals.Handle("bluez", bluez.Device(), self.on_device_property_changed, "PropertyChanged", path_keyword="path")
+        # self.signals = SignalTracker()
+        # self.signals.Handle("bluez", bluez.Device(), self.on_device_property_changed, "PropertyChanged", path_keyword="path")
 
     def on_unload(self):
         pass
-        #self.signals.DisconnectAll()
+        # self.signals.DisconnectAll()
 
     def on_device_property_changed(self, path, key, value):
         if key == 'Connected':

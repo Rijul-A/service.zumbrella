@@ -54,7 +54,7 @@
 					<label>$INFO[Window.Property(label)]</label>
 				</control>
 
-				<!-- Watch Now -->
+				<!-- Play/Pause -->
 				<control type="button" id="3012">
 					<left>10</left>
 					<top>70</top>
@@ -62,14 +62,14 @@
 					<width>170</width>
 					<align>center</align>
 					<font>Font27</font>
-					<label>$ADDON[service.zumbrella 32029]</label>
+					<label>$INFO[Window.Property(left_button_label)]</label>
 					<oninfo>noop</oninfo>
 					<onleft>3013</onleft>
 					<onright>3014</onright>
 					<texturefocus colordiffuse="FFFFFFFF">focus27c.png</texturefocus>
 				</control>
 
-        		<!-- Close -->
+        		<!-- Watch Now -->
         		<control type="button" id="3014">
 					<left>190</left>
 					<top>70</top>
@@ -77,14 +77,14 @@
 					<width>170</width>
 					<align>center</align>
 					<font>Font27</font>
-					<label>$ADDON[service.zumbrella 32030]</label>
+					<label>$ADDON[service.zumbrella 32029]</label>
 					<oninfo>noop</oninfo>
 					<onleft>3012</onleft>
 					<onright>3013</onright>
 					<texturefocus colordiffuse="FFFFFFFF">focus27c.png</texturefocus>
 				</control>
 
-				<!-- Stop -->
+				<!-- Close -->
 				<control type="button" id="3013">
 					<left>370</left>
 					<top>70</top>
@@ -92,7 +92,7 @@
 					<width>170</width>
 					<align>center</align>
 					<font>Font27</font>
-          			<label>$ADDON[service.zumbrella 32031]</label>
+          			<label>$ADDON[service.zumbrella 32030]</label>
 					<oninfo>noop</oninfo>
 					<onleft>3014</onleft>
 					<onright>3012</onright>
