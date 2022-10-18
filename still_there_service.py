@@ -258,9 +258,10 @@ class StillThereService:
                 if xbmc.getCondVisibility( 'Player.Playing' ):
                     self.log(
                         'Inactive time of {} seconds is >= than the '
-                        'threshold of {} seconds, showing the GUI'
-                        .format( inactivity_seconds,
-                                 threshold )
+                        'threshold of {} seconds, showing the GUI'.format(
+                            inactivity_seconds,
+                            threshold
+                        )
                     )
                     self.update_label()
                     self.custom_dialog.update_progress( 1.0 )
@@ -272,9 +273,10 @@ class StillThereService:
             else:
                 self.log(
                     'Inactive time of {} seconds is < than the '
-                    'threshold of {} seconds, not doing anything'
-                    .format( inactivity_seconds,
-                             threshold )
+                    'threshold of {} seconds, not doing anything'.format(
+                        inactivity_seconds,
+                        threshold
+                    )
                 )
         else:
             self.log( 'Nothing to supervise, skipping' )

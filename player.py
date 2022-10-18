@@ -2,6 +2,7 @@ from kodi_six import xbmc
 
 import common
 
+
 class Player( xbmc.Player ):
     def __init__( self, *args, **kwargs ):
         xbmc.Player.__init__( self )

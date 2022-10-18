@@ -214,7 +214,10 @@ class BluetoothService:
                 'Contents of the log file have changed since last run, '
                 'checking for device connection log line'
             )
-            self.logFile.seek( self.logFileLastSize, 0 )  # go back to last check
+            self.logFile.seek(
+                self.logFileLastSize,
+                0
+            )  # go back to last check
             lines = self.logFile.readlines()
             for line in lines:
                 if BluetoothService.__LOG_DEVICE_CONNECTED__ in line:

@@ -2,6 +2,7 @@ from kodi_six import xbmc
 
 import common
 
+
 class Monitor( xbmc.Monitor ):
     def __init__( self, *args, **kwargs ):
         xbmc.Monitor.__init__( self )
