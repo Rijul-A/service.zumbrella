@@ -1,12 +1,9 @@
 from kodi_six import xbmc
 
-import common
-
 
 class Player( xbmc.Player ):
     def __init__( self, *args, **kwargs ):
         xbmc.Player.__init__( self )
-        self.log( 'Instantiating monitor' )
         self.avStartedAction = kwargs.get( 'avStartedAction' )
         self.playBackPausedAction = kwargs.get( 'playBackPausedAction' )
         self.playBackResumedAction = kwargs.get( 'playBackResumedAction' )
@@ -37,6 +34,3 @@ class Player( xbmc.Player ):
     def onPlayBackStopped( self ):
         if self.playBackStoppedAction:
             self.playBackStoppedAction()
-
-    def log( self, msg ):
-        common.log( self.__class__.__name__, msg )

@@ -1,4 +1,3 @@
-import os
 import subprocess
 import codecs
 import json
@@ -8,10 +7,11 @@ import six
 
 from kodi_six import xbmc, xbmcgui
 
-import common
+from common import ( read_bool_setting, read_int_setting )
+from logger import Logger
 
 
-class BluetoothService:
+class BluetoothService( Logger ):
     __DISCONNECTION_ELIGIBILITY_THRESHOLD_NOT_ELAPSED__ = -2
     __DISCONNECTION_ELIGIBILITY_NO_NEW_DEVICE__ = -1
     __DISCONNECTION_ELIGIBILITY_YES__ = 1
@@ -67,43 +67,43 @@ class BluetoothService:
 
     def refresh_settings( self ):
         self.log( 'Reading settings' )
-        self.inactivity_threshold = common.read_int_setting(
+        self.inactivity_threshold = read_int_setting(
             self.addon,
             BluetoothService.__SETTING_INACTIVITY_THRESHOLD__
         )
-        self.use_no_media_threshold = common.read_bool_setting(
+        self.use_no_media_threshold = read_bool_setting(
             self.addon,
             BluetoothService.__SETTING_USE_NO_MEDIA_THRESHOLD__
         )
-        self.inactivity_threshold_no_media = common.read_int_setting(
+        self.inactivity_threshold_no_media = read_int_setting(
             self.addon,
             BluetoothService.__SETTING_INACTIVITY_THRESHOLD_NO_MEDIA__
         )
-        self.use_paused_media_threshold = common.read_bool_setting(
+        self.use_paused_media_threshold = read_bool_setting(
             self.addon,
             BluetoothService.__SETTING_USE_PAUSED_MEDIA_THRESHOLD__
         )
-        self.inactivity_threshold_paused_media = common.read_int_setting(
+        self.inactivity_threshold_paused_media = read_int_setting(
             self.addon,
             BluetoothService.__SETTING_INACTIVITY_THRESHOLD_PAUSED_MEDIA__
         )
-        self.min_connection_threshold = common.read_int_setting(
+        self.min_connection_threshold = read_int_setting(
             self.addon,
             BluetoothService.__SETTING_MIN_CONNECTION_THRESHOLD__
         )
-        self.use_screensaver = common.read_bool_setting(
+        self.use_screensaver = read_bool_setting(
             self.addon,
             BluetoothService.__SETTING_USE_SCREENSAVER__
         )
-        self.notify = common.read_bool_setting(
+        self.notify = read_bool_setting(
             self.addon,
             BluetoothService.__SETTING_NOTIFY__
         )
-        self.notify_sound = common.read_bool_setting(
+        self.notify_sound = read_bool_setting(
             self.addon,
             BluetoothService.__SETTING_NOTIFY_SOUND__
         )
-        self.notify_sound_playing = common.read_bool_setting(
+        self.notify_sound_playing = read_bool_setting(
             self.addon,
             BluetoothService.__SETTING_NOTIFY_SOUND_PLAYING__
         )
@@ -419,6 +419,3 @@ class BluetoothService:
                 )
         else:
             self.log( 'No eligible devices to disconnect, doing nothing' )
-
-    def log( self, msg ):
-        common.log( self.__class__.__name__, msg )

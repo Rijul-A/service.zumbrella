@@ -3,11 +3,12 @@ import time
 
 from kodi_six import xbmc
 
-import common
+from common import ( json_rpc, read_bool_setting, read_int_setting, )
 from custom_dialog import CustomDialog
+from logger import Logger
 
 
-class StillThereService:
+class StillThereService( Logger ):
     __SETTING_NOTIFICATION_DURATION__ = "notification_duration"
     __SETTING_ENABLE_VIDEO_SUPERVISION__ = "enable_video_supervision"
     __SETTING_VIDEO_INACTIVITY_THRESHOLD__ = "video_inactivity_threshold"
@@ -53,24 +54,24 @@ class StillThereService:
 
     def refresh_settings( self ):
         self.log( 'Reading settings' )
-        self.notification_duration = common.read_int_setting(
+        self.notification_duration = read_int_setting(
             self.addon,
             StillThereService.__SETTING_NOTIFICATION_DURATION__,
             False
         )  # in seconds already, will not be 0 so False
-        self.enable_video_supervision = common.read_bool_setting(
+        self.enable_video_supervision = read_bool_setting(
             self.addon,
             StillThereService.__SETTING_ENABLE_VIDEO_SUPERVISION__
         )
-        self.video_inactivity_threshold = common.read_int_setting(
+        self.video_inactivity_threshold = read_int_setting(
             self.addon,
             StillThereService.__SETTING_VIDEO_INACTIVITY_THRESHOLD__
         )
-        self.enable_audio_supervision = common.read_bool_setting(
+        self.enable_audio_supervision = read_bool_setting(
             self.addon,
             StillThereService.__SETTING_ENABLE_AUDIO_SUPERVISION__
         )
-        self.audio_inactivity_threshold = common.read_int_setting(
+        self.audio_inactivity_threshold = read_int_setting(
             self.addon,
             StillThereService.__SETTING_AUDIO_INACTIVITY_THRESHOLD__
         )
@@ -136,38 +137,30 @@ class StillThereService:
             self.log( 'Paused media' )
 
     def get_player_id( self ):
-        result = {}
+        result = []
         tries = 0
-        while not result.get(
-            'result'
-        ) and tries < StillThereService.__MAX_TRIES__:
+        while len( result ) == 0 \
+        and tries < StillThereService.__MAX_TRIES__:
             self.log( 'Trying to obtain active player' )
-            result = common.json_rpc( method = 'Player.GetActivePlayers' )
+            result = json_rpc( method = 'Player.GetActivePlayers' )
             tries = tries + 1
-        if not result.get( 'result' ):
-            self.log( 'Did not found any active players' )
-            return
-        return result.get( 'result' )[ 0 ].get( 'playerid' )
+        if len( result ) == 0:
+            self.log( 'Did not find any active players' )
+            return -1
+        return result[ 0 ].get( 'playerid', -1 )
 
     def get_current_item( self ):
         playerid = self.get_player_id()
-        if playerid is None:
+        if playerid == -1:
             return
         self.log( 'Found active player with id: {}'.format( playerid ) )
         if xbmc.getCondVisibility( 'Player.HasAudio' ):
             properties = [ 'title', 'album', 'artist', 'file' ]
-            id = 'AudioGetItem'
         else:
             properties = [ 'showtitle', 'season', 'episode', 'title', 'file' ]
-            id = 'VideoGetItem'
         requested_params = dict( playerid = playerid, properties = properties )
-        result = common.json_rpc(
-            method = 'Player.GetItem',
-            params = requested_params,
-            id = id
-        )
-        item = result.get( 'result' ).get( 'item' )
-        return item
+        return json_rpc( method = 'Player.GetItem',
+                         params = requested_params ).get( 'item' )
 
     def get_item( self ):
         return self.get_current_item()
@@ -287,6 +280,3 @@ class StillThereService:
         if callback:
             while ( callback() ):
                 self.sleep( duration )
-
-    def log( self, msg ):
-        common.log( self.__class__.__name__, msg )

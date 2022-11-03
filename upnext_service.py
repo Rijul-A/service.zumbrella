@@ -2,12 +2,13 @@ from threading import Timer
 
 from kodi_six import xbmc
 
-from still_there_service import StillThereService
+from common import ( json_rpc, read_float_setting )
 from custom_dialog import CustomDialog
-import common
+from logger import Logger
+from still_there_service import StillThereService
 
 
-class UpNextService( StillThereService ):
+class UpNextService( StillThereService, Logger ):
     __SETTING_MIN_VIDEO_COMPLETION_PERCENTAGE__ = "min_video_completion_percentage"
 
     def onAVStarted( self ):
@@ -26,7 +27,7 @@ class UpNextService( StillThereService ):
     def refresh_settings( self ):
         self.deactivated_file = None
         self.log( 'Reading settings' )
-        self.min_video_completion_percentage = common.read_float_setting(
+        self.min_video_completion_percentage = read_float_setting(
             self.addon,
             UpNextService.__SETTING_MIN_VIDEO_COMPLETION_PERCENTAGE__
         ) / 100.0
@@ -118,17 +119,9 @@ class UpNextService( StillThereService ):
                                end = position + 2 ),
                 properties = properties
             )
-            result = common.json_rpc(
-                method = 'Playlist.GetItems',
-                params = params
-            )
-            if result:
-                self.log( 'Got result from playlist' )
-                items = result.get( 'result',
-                                    {} ).get( 'items' )
-                if items:
-                    self.log( 'Got items from result' )
-                    return items[ 0 ]
+            return json_rpc( method = 'Playlist.GetItems',
+                             params = params ).get( 'items',
+                                                    [ None ] )[ 0 ]
         else:
             self.log( 'No more entries in the playlist' )
 
@@ -144,7 +137,7 @@ class UpNextService( StillThereService ):
         except AttributeError:
             pass
 
-    def do_check( self, *_ ):
+    def do_check( self, inactivity_seconds ):
         if not xbmc.getCondVisibility( 'Player.HasVideo' ):
             self.log( 'Not playing videos, doing nothing' )
             return
@@ -217,6 +210,3 @@ class UpNextService( StillThereService ):
                     self.min_video_completion_percentage
                 )
             )
-
-    def log( self, msg ):
-        common.log( self.__class__.__name__, msg )

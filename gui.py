@@ -1,13 +1,19 @@
 import sys
 import json
-import os
 import subprocess
 import six
 
-from kodi_six import xbmc, xbmcgui, xbmcaddon
+from kodi_six import xbmcgui, xbmcaddon
 
-import common
 from bluetooth_service import BluetoothService
+from common import json_rpc
+from logger import Logger
+
+__SETTING_SHOW_GUI__ = 'show_gui'
+
+
+class GuiLogger( Logger ):
+    pass
 
 
 def uniquify( mylist ):
@@ -28,8 +34,9 @@ def uniquify( mylist ):
 
 
 def get_devices_dict():
+    logger = GuiLogger()
     # k, v = device_name, device_mac
-    log( 'Creating dictionary of devies' )
+    logger.log( 'Creating dictionary of devices' )
     try:
         command_output = subprocess.check_output(
             BluetoothService.__GET_DEVICES__,
@@ -48,29 +55,28 @@ def get_devices_dict():
             ]
         )
     )
-    log( 'Created devices dictionary {}'.format( json.dumps( devices_dict ) ) )
+    logger.log(
+        'Created devices dictionary {}'.format( json.dumps( devices_dict ) )
+    )
     return devices_dict
 
 
-def log( msg ):
-    common.log( os.path.basename( __file__ ), msg )
-
-
 def show_gui( thisAddon ):
-    log( 'Loaded thisAddon object' )
+    logger = GuiLogger()
+    logger.log( 'Loaded thisAddon object' )
     dialog = xbmcgui.Dialog()
-    log( 'Created dialog object' )
+    logger.log( 'Created dialog object' )
     saved_devices_to_disconnect = json.loads(
         thisAddon.getSettingString(
             BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__
         )
     )
-    log(
+    logger.log(
         'Loaded saved_devices_to_disconnect {}'
         .format( saved_devices_to_disconnect )
     )
     possible_devices_to_disconnect = get_devices_dict()
-    log(
+    logger.log(
         'Loaded possible_devices_to_disconnect {}'
         .format( possible_devices_to_disconnect )
     )
@@ -78,7 +84,7 @@ def show_gui( thisAddon ):
     saved_devices_to_disconnect_final = {}
     for device_name, device_mac in six.iteritems( saved_devices_to_disconnect ):
         if device_mac not in six.itervalues( possible_devices_to_disconnect ):
-            log(
+            logger.log(
                 'Found unpaired device {}, removing it from saved devices'
                 .format( device_mac )
             )
@@ -86,16 +92,16 @@ def show_gui( thisAddon ):
             saved_devices_to_disconnect_final[ device_name ] = device_mac
     saved_devices_to_disconnect = saved_devices_to_disconnect_final
     # create preselect array
-    log( 'Creating preselect array' )
+    logger.log( 'Creating preselect array' )
     preselect = []
     i = -1
     for device_name, device_mac in six.iteritems(possible_devices_to_disconnect):
         i = i + 1
         if device_mac in six.itervalues( saved_devices_to_disconnect ):
-            log( 'Found pre-selected device {}'.format( device_mac ) )
+            logger.log( 'Found pre-selected device {}'.format( device_mac ) )
             preselect.append( i )
     # show dialog with multiselect and preselect
-    log( 'Displaying multiselect dialog' )
+    logger.log( 'Displaying multiselect dialog' )
     returned_devices_to_disconnect = dialog.multiselect(
         thisAddon.getLocalizedString(
             BluetoothService.__STRING_DEVICES_TO_DISCONNECT_ID__
@@ -108,7 +114,7 @@ def show_gui( thisAddon ):
         preselect = preselect
     )
     if returned_devices_to_disconnect is None:
-        log(
+        logger.log(
             'Multiselect dialog was canceled, saving old config {}'
             .format( saved_devices_to_disconnect )
         )
@@ -122,7 +128,7 @@ def show_gui( thisAddon ):
             list( six.itervalues( possible_devices_to_disconnect ) )[ element ]
             for element in returned_devices_to_disconnect
         }
-        log( 'Saving new config {}'.format( to_save_devices ) )
+        logger.log( 'Saving new config {}'.format( to_save_devices ) )
         thisAddon.setSettingString(
             BluetoothService.__SETTING_DEVICES_TO_DISCONNECT__,
             json.dumps( to_save_devices )
@@ -135,9 +141,10 @@ def disconnect_now( thisAddon ):
     object.disconnect_possible_devices( True )
 
 
-if ( __name__ == '__main__' ):
+def main():
+    logger = GuiLogger()
     thisAddon = xbmcaddon.Addon()
-    log( 'GUI.py - main function' )
+    logger.log( 'GUI.py - main function' )
     try:
         arg = sys.argv[ 1 ].lower()
     except IndexError:
@@ -147,11 +154,15 @@ if ( __name__ == '__main__' ):
         if BluetoothService.__SETTING_DISCONNECT_NOW__ in arg:
             disconnect_now( thisAddon )
             if 'back' in arg:
-                common.json_rpc( method = "Input.Back", id = 1 )
-        elif arg == common.__SETTING_SHOW_GUI__:
+                json_rpc( method = "Input.Back" )
+        elif arg == __SETTING_SHOW_GUI__:
             show_gui( thisAddon )
         else:
-            log( 'arg: {}'.format( arg ) )
+            logger.log( 'arg: {}'.format( arg ) )
             disconnect_now( thisAddon )
     else:
         disconnect_now( thisAddon )
+
+
+if ( __name__ == '__main__' ):
+    main()

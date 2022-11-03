@@ -1,27 +1,9 @@
 import json
+import os
 
 from kodi_six import xbmc
 
-__PLUGIN_ID__ = 'service.zumbrella'
-__PLUGIN_VERSION__ = 'v0.0.4-matrix'
-
-__SETTING_SHOW_GUI__ = 'show_gui'
-
-logMode = xbmc.LOGINFO
-
-
-def log( file_name, msg, mode = None ):
-    global logMode
-    mode = None or logMode
-    xbmc.log(
-        "[{}_{}]: {} - {}".format(
-            __PLUGIN_ID__,
-            __PLUGIN_VERSION__,
-            file_name,
-            msg
-        ),
-        mode
-    )
+from logger import Logger
 
 
 def read_float_setting( addon, setting_id ):
@@ -37,12 +19,22 @@ def read_int_setting( addon, setting_id, minutes_to_seconds = True ):
 
 
 def read_bool_setting( addon, setting_id ):
-    return addon.getSetting( setting_id ) == 'true'
+    return addon.getSetting( setting_id ).lower() == 'true'
 
 
 def json_rpc( **kwargs ):
+    logger = Logger( os.path.basename( __file__ ) )
     if kwargs.get( 'id' ) is None:
-        kwargs.update( id = 0 )
+        kwargs.update( id = 1 )
     if kwargs.get( 'jsonrpc' ) is None:
         kwargs.update( jsonrpc = '2.0' )
-    return json.loads( xbmc.executeJSONRPC( json.dumps( kwargs ) ) )
+    payload = json.dumps( kwargs )
+    # only show if debug mode
+    logger.log( 'JSON-RPC execute %s' % payload, xbmc.LOGDEBUG )
+    output = json.loads( xbmc.executeJSONRPC( payload ) )
+    if 'error' in output:
+        # always show
+        logger.log( output, xbmc.LOGERROR )
+        raise RuntimeError( 'Invalid RPC reponse' )
+    return output.get( 'result',
+                       {} )
