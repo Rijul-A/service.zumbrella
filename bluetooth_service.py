@@ -5,7 +5,7 @@ import datetime as dt
 import re
 import six
 
-from kodi_six import xbmc, xbmcgui
+from kodi_six import xbmc, xbmcgui, xbmcvfs
 
 from common import ( read_bool_setting, read_int_setting )
 from logger import Logger
@@ -48,7 +48,7 @@ class BluetoothService( Logger ):
         self.dialog = xbmcgui.Dialog()
         self.addon = addon
         self.logFile = codecs.open(
-            xbmc.translatePath( r'special://logpath/kodi.log' ),
+            xbmcvfs.translatePath( r'special://logpath/kodi.log' ),
             'r',
             encoding = 'utf-8',
             errors = 'ignore'
