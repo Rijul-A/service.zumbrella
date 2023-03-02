@@ -4,7 +4,7 @@ import os
 from kodi_six import xbmc, xbmcaddon
 
 from bluetooth_service import BluetoothService
-from common import ( json_rpc, read_int_setting )
+from common import ( get_player_id, json_rpc, read_int_setting )
 from logger import Logger
 from monitor import Monitor
 from player import Player
@@ -56,6 +56,7 @@ class MainService( Logger ):
 
     def onAVStarted( self ):
         self.call_on_all_services( inspect.currentframe().f_code.co_name )
+        self.change_audio_stream()
         self.activate_subtitles()
 
     def onPlayBackPaused( self ):
@@ -112,21 +113,16 @@ class MainService( Logger ):
             exit()
 
     def activate_subtitles( self, lang = 'eng' ):
-        if not( xbmc.getCondVisibility( 'Player.HasVideo' ) \
-        and xbmc.getCondVisibility( 'VideoPlayer.HasSubtitles' ) ):
-            return
         self.log( 'Activating subtitles' )
-        player_id = self.still_there_service.get_player_id()
-        if player_id == -1:
-            self.log( 'No player_id, cancelled' )
+        if not xbmc.getCondVisibility( 'VideoPlayer.HasSubtitles' ):
+            self.log( 'No subtitles available, doing nothing' )
             return
-        subtitles = json_rpc(
-            method = 'Player.GetProperties',
-            params = dict( playerid = player_id,
-                           properties = [ 'subtitles' ] )
-        ).get( 'subtitles',
-               [] )
-        # drop the forced subtitles
+        subtitles = self.get_player_properties( 'subtitles' )
+        if subtitles is None:
+            self.log( 'Doing nothing' )
+            return
+        # drop the forced subtitles which contain only certain translations
+        # and aren't full subtitles
         self.log( 'Dropping forced subtitles' )
         subtitles = [
             subtitle for subtitle in subtitles if not subtitle[ 'isforced' ]
@@ -139,7 +135,16 @@ class MainService( Logger ):
             index = subtitles[ 0 ][ 'index' ]
         else:
             self.log( 'Choosing appropriate subtitle' )
-            index = self.pick_appropriate_subtitle( subtitles, lang )
+            constraints = {
+                "prefer default": lambda x: x[ 'isdefault' ],
+                "internal with language": lambda x: x[ 'language' ] == lang and
+                'external' not in x[ 'name' ].lower(),
+                "internal without language": lambda x: x[ 'language' ] == '' and
+                'external' not in x[ 'name' ].lower(),
+                "any with language": lambda x: x[ 'language' ] == lang,
+                "any without language": lambda x: x[ 'language' ] == '',
+            }
+            index = self.pick_appropriate( subtitles, constraints )
         if not index:
             return
         self.log( 'Setting subtitle stream' )
@@ -147,23 +152,54 @@ class MainService( Logger ):
         self.log( 'Showing subtitle' )
         self.player.showSubtitles( True )
 
-    def pick_appropriate_subtitle( self, subtitles, lang ):
+    def change_audio_stream( self, lang = 'eng' ):
+        # do not change audio stream if there is no video
+        self.log( 'Changing audio stream' )
+        audio_streams = self.get_player_properties( 'audiostreams' )
+        if audio_streams is None:
+            self.log( 'Doing nothing' )
+            return
+        if len( audio_streams ) == 0:
+            self.log( 'No audio stream available, cancelled' )
+            return
+        if len( audio_streams ) == 1:
+            self.log( 'Only one audio stream available, picking it' )
+            index = audio_streams[ 0 ][ 'index' ]
+        else:
+            self.log( 'Choosing appropriate audio stream' )
+            constraints = {
+                "any with language": lambda x: x[ 'language' ] == lang,
+                "any without language": lambda x: x[ 'language' ] == '',
+                "prefer default": lambda x: x[ 'isdefault' ],
+            }
+            index = self.pick_appropriate( audio_streams, constraints )
+        if not index:
+            return
+        self.log( 'Setting audio stream' )
+        self.player.setAudioStream( index )
+
+    def get_player_properties( self, which_property ):
+        if not xbmc.getCondVisibility( 'Player.HasVideo' ):
+            self.log( 'No video, doing nothing' )
+            return
+        player_id = get_player_id()
+        if player_id == -1:
+            self.log( 'No player_id, cancelled' )
+            return
+        return json_rpc(
+            method = 'Player.GetProperties',
+            params = dict(
+                playerid = player_id,
+                properties = [ which_property ],
+            )
+        ).get( which_property,
+               [] )
+
+    def pick_appropriate( self, items, constraints ):
         # apply these one by one
-        constraints = {
-            "prefer default": lambda x: x[ 'isdefault' ],
-            "internal with language": lambda x: x[
-                'language' ] == lang and 'external' not in x[ 'name' ].lower(),
-            "internal without language": lambda x: x[ 'language' ] == '' and
-            'external' not in x[ 'name' ].lower(),
-            "any with language": lambda x: x[ 'language' ] == lang,
-            "any without language": lambda x: x[ 'language' ] == ''
-        }
         for description, constraint in constraints.items():
             result = next(
-                (
-                    subtitle for subtitle in subtitles
-                    if constraint( subtitle )
-                ),
+                ( item for item in items if constraint( item ) ),
                 {}
             )
             if result:

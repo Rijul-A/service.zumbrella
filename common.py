@@ -38,3 +38,21 @@ def json_rpc( **kwargs ):
         raise RuntimeError( 'Invalid RPC reponse' )
     return output.get( 'result',
                        {} )
+
+
+__MAX_TRIES__ = 100
+
+
+def get_player_id():
+    logger = Logger( os.path.basename( __file__ ) )
+    result = []
+    tries = 0
+    while len( result ) == 0 \
+    and tries < __MAX_TRIES__:
+        logger.log( 'Trying to obtain active player' )
+        result = json_rpc( method = 'Player.GetActivePlayers' )
+        tries = tries + 1
+    if len( result ) == 0:
+        logger.log( 'Did not find any active players' )
+        return -1
+    return result[ 0 ].get( 'playerid', -1 )

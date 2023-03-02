@@ -3,7 +3,12 @@ import time
 
 from kodi_six import xbmc
 
-from common import ( json_rpc, read_bool_setting, read_int_setting, )
+from common import (
+    get_player_id,
+    json_rpc,
+    read_bool_setting,
+    read_int_setting,
+)
 from custom_dialog import CustomDialog
 from logger import Logger
 
@@ -14,8 +19,6 @@ class StillThereService( Logger ):
     __SETTING_VIDEO_INACTIVITY_THRESHOLD__ = "video_inactivity_threshold"
     __SETTING_ENABLE_AUDIO_SUPERVISION__ = "enable_audio_supervision"
     __SETTING_AUDIO_INACTIVITY_THRESHOLD__ = "audio_inactivity_threshold"
-
-    __MAX_TRIES__ = 100
 
     def __init__( self, addon, monitor, xmlname ):
         self.log( 'Creating object' )
@@ -136,21 +139,8 @@ class StillThereService( Logger ):
             xbmc.Player().pause()
             self.log( 'Paused media' )
 
-    def get_player_id( self ):
-        result = []
-        tries = 0
-        while len( result ) == 0 \
-        and tries < StillThereService.__MAX_TRIES__:
-            self.log( 'Trying to obtain active player' )
-            result = json_rpc( method = 'Player.GetActivePlayers' )
-            tries = tries + 1
-        if len( result ) == 0:
-            self.log( 'Did not find any active players' )
-            return -1
-        return result[ 0 ].get( 'playerid', -1 )
-
     def get_current_item( self ):
-        playerid = self.get_player_id()
+        playerid = get_player_id()
         if playerid == -1:
             return
         self.log( 'Found active player with id: {}'.format( playerid ) )
