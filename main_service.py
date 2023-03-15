@@ -125,11 +125,14 @@ class MainService( Logger ):
         # and aren't full subtitles
         self.log( 'Dropping forced subtitles' )
         subtitles = [
-            subtitle for subtitle in subtitles if not subtitle[ 'isforced' ]
+            subtitle for subtitle in subtitles if not (
+                subtitle[ 'isforced' ] or 'forced' in subtitle[ 'name' ].lower()
+            )
         ]
         if len( subtitles ) == 0:
             self.log( 'No subtitle available, cancelled' )
             return
+        index = None
         if len( subtitles ) == 1:
             self.log( 'Only one subtitle available, picking it' )
             index = subtitles[ 0 ][ 'index' ]
@@ -145,7 +148,7 @@ class MainService( Logger ):
                 "any without language": lambda x: x[ 'language' ] == '',
             }
             index = self.pick_appropriate( subtitles, constraints )
-        if not index:
+        if index is None:
             return
         self.log( 'Setting subtitle stream' )
         self.player.setSubtitleStream( index )
@@ -162,6 +165,7 @@ class MainService( Logger ):
         if len( audio_streams ) == 0:
             self.log( 'No audio stream available, cancelled' )
             return
+        index = None
         if len( audio_streams ) == 1:
             self.log( 'Only one audio stream available, picking it' )
             index = audio_streams[ 0 ][ 'index' ]
@@ -173,7 +177,7 @@ class MainService( Logger ):
                 "prefer default": lambda x: x[ 'isdefault' ],
             }
             index = self.pick_appropriate( audio_streams, constraints )
-        if not index:
+        if index is None:
             return
         self.log( 'Setting audio stream' )
         self.player.setAudioStream( index )
