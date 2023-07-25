@@ -1,4 +1,4 @@
-from kodi_six import xbmc
+import xbmc
 
 from common import Logger
 
@@ -11,6 +11,7 @@ class Monitor( xbmc.Monitor, Logger ):
         self.screensaverAction = kwargs.get( 'screensaverAction' )
 
     def onScreensaverActivated( self ):
+        self.log( 'onScreensaverActivated' )
         if self.screensaverAction:
             self.screensaverAction()
 
@@ -19,5 +20,12 @@ class Monitor( xbmc.Monitor, Logger ):
             self.reloadAction()
 
     def onNotification( self, sender, method, data ):
-        if sender == 'plugin.video.jellyfin' and method == 'upnext_data':
-            self.log( 'Received notification %s' % str( data ) )
+        self.log(
+            "sender %s - method: %s  - data: %s" % ( sender,
+                                                     method,
+                                                     data )
+        )
+        # the opposite method is GUI.OnScreensaverDeactivated
+        if sender == 'xbmc' and method == 'GUI.OnDPMSActivated':
+            if self.screensaverAction:
+                self.screensaverAction()

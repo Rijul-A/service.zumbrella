@@ -1,6 +1,6 @@
 from threading import Timer
 
-from kodi_six import xbmc
+import xbmc
 
 from common import ( json_rpc, read_float_setting )
 from custom_dialog import CustomDialog

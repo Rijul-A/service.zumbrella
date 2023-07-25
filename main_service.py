@@ -1,7 +1,7 @@
 import inspect
 import os
 
-from kodi_six import xbmc, xbmcaddon
+import xbmc, xbmcaddon
 
 from bluetooth_service import BluetoothService
 from common import ( get_player_id, json_rpc, read_int_setting )
@@ -9,6 +9,7 @@ from logger import Logger
 from monitor import Monitor
 from player import Player
 from still_there_service import StillThereService
+from tv_service import TvService
 from upnext_service import UpNextService
 
 
@@ -34,16 +35,21 @@ class MainService( Logger ):
         self.still_there_service = StillThereService(
             self.addon,
             self.monitor,
-            'still_there.xml'
+            'still_there.xml',
+            self
         )
+        self.tv_service = TvService( self.addon )
         self.upnext_service = UpNextService(
             self.addon,
             self.monitor,
-            'up_next.xml'
+            'up_next.xml',
+            # UpNext inherits from StillThere, so this needs to be supplied
+            None
         )
         self.services = [
             self.bluetooth_service,
             self.still_there_service,
+            self.tv_service,
             self.upnext_service
         ]
         self.refresh_settings()
@@ -75,6 +81,7 @@ class MainService( Logger ):
         self.call_on_all_services( inspect.currentframe().f_code.co_name )
 
     def onScreensaverActivated( self ):
+        self.log( 'onScreensaverActivated' )
         self.call_on_all_services( inspect.currentframe().f_code.co_name )
 
     def onSettingsChanged( self ):

@@ -1,4 +1,4 @@
-from kodi_six import xbmcgui
+import xbmcgui
 
 
 class CustomDialog( xbmcgui.WindowXMLDialog ):

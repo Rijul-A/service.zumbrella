@@ -3,7 +3,7 @@ import json
 import subprocess
 import six
 
-from kodi_six import xbmcgui, xbmcaddon
+import xbmcgui, xbmcaddon
 
 from bluetooth_service import BluetoothService
 from common import json_rpc
@@ -124,8 +124,9 @@ def show_gui( thisAddon ):
         )
     else:
         to_save_devices = {
-            list( six.iterkeys( possible_devices_to_disconnect ) )[ element ]:
-            list( six.itervalues( possible_devices_to_disconnect ) )[ element ]
+            list( six.iterkeys( possible_devices_to_disconnect ) )[ element ]: list(
+                six.itervalues( possible_devices_to_disconnect )
+            )[ element ]
             for element in returned_devices_to_disconnect
         }
         logger.log( 'Saving new config {}'.format( to_save_devices ) )

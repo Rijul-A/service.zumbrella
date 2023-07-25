@@ -1,7 +1,7 @@
 import json
 import os
 
-from kodi_six import xbmc
+import xbmc
 
 from logger import Logger
 

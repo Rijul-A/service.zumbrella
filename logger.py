@@ -1,4 +1,4 @@
-from kodi_six import xbmc
+import xbmc
 
 __PLUGIN_ID__ = 'service.zumbrella'
 __PLUGIN_VERSION__ = 'v0.0.5-matrix'

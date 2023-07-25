@@ -5,7 +5,7 @@ import datetime as dt
 import re
 import six
 
-from kodi_six import xbmc, xbmcgui, xbmcvfs
+import xbmc, xbmcgui, xbmcvfs
 
 from common import ( read_bool_setting, read_int_setting )
 from logger import Logger

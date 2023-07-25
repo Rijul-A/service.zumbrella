@@ -163,3 +163,23 @@ msgstr ""
 msgctxt "#32035"
 msgid "Play/Pause"
 msgstr ""
+
+msgctxt "#32038"
+msgid "TV Details"
+msgstr ""
+
+msgctxt "#32039"
+msgid "IP address"
+msgstr ""
+
+msgctxt "#32040"
+msgid "Password"
+msgstr ""
+
+msgctxt "#32041"
+msgid "MAC address"
+msgstr ""
+
+msgctxt "#32042"
+msgid "HDMI port"
+msgstr ""

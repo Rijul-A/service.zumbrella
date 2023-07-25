@@ -34,4 +34,10 @@
 	<category label="32027">
 		<setting id="min_video_completion_percentage" label="32028" type="slider" default="90" range="80,0.5,100"/>
 	</category>
+	<category label="32038">
+		<setting id="tv_ip_address" label="32039" type="ipaddress"/>
+		<setting id="tv_password" label="32040" type="text" option="hidden"/>
+		<setting id="tv_mac_address" label="32041" type="text" default="00:00:00:00:00:00"/>
+		<setting id="tv_hdmi_port" label="32042" default="1" type="slider" range="1,1,4"/>
+	</category>
 </settings>

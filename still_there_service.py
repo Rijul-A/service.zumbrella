@@ -1,7 +1,7 @@
 import six
 import time
 
-from kodi_six import xbmc
+import xbmc
 
 from common import (
     get_player_id,
@@ -20,7 +20,7 @@ class StillThereService( Logger ):
     __SETTING_ENABLE_AUDIO_SUPERVISION__ = "enable_audio_supervision"
     __SETTING_AUDIO_INACTIVITY_THRESHOLD__ = "audio_inactivity_threshold"
 
-    def __init__( self, addon, monitor, xmlname ):
+    def __init__( self, addon, monitor, xmlname, main_service ):
         self.log( 'Creating object' )
         self.addon = addon  # to load settings
         self.monitor = monitor  # to sleep
@@ -32,6 +32,7 @@ class StillThereService( Logger ):
             onClick = self.onCustomDialogClick
         )
         self.last_continue_click_time = None
+        self.main_service = main_service
 
     def onAVStarted( self ):
         pass
@@ -252,7 +253,13 @@ class StillThereService( Logger ):
                     self.custom_dialog.show()
                     self.sleep( 0.01, self.update_progress )
                 else:
+                    self.log(
+                        'Exceeded idle time, stopping media and'
+                        'turning off the TV'
+                    )
                     xbmc.Player().stop()
+                    # use the main service to request tv turn off
+                    self.main_service.tv_service.power( False )
             else:
                 self.log(
                     'Inactive time of {} seconds is < than the '

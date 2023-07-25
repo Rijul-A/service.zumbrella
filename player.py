@@ -1,4 +1,4 @@
-from kodi_six import xbmc
+import xbmc
 
 
 class Player( xbmc.Player ):
