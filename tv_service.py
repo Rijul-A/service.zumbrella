@@ -1,3 +1,5 @@
+import xbmc
+
 from sony_bravia_api import Bravia
 from wakeonlan import send_magic_packet
 
@@ -92,5 +94,11 @@ class TvService( Logger ):
         self.bravia.setPower( on )
 
     def onScreensaverActivated( self ):
+        # when music is playing, screensaver is activated
+        if xbmc.getCondVisibility(
+            'Player.HasMedia'
+        ) and xbmc.getCondVisibility( 'Player.Playing' ):
+            self.log( 'Screensaver activated but have playing media' )
+            return
         self.log( 'Turning off TV because screensaver activated' )
         self.power( False )
