@@ -10,8 +10,8 @@
 	</extension>
   <extension point="xbmc.service" library="main_service.py" start="login"/>
   <extension point="xbmc.addon.metadata">
-		<summary lang="en_GB">Bluetooth inactivity timer, sleep timer, and UpNext all in one</summary>
-		<description lang="en_GB">(1) The sleep timer checks for inactivity and pauses media. (2) BT inactivity does the same and turns off your bluetooth controllers. (3) Up next is a copy of Netflix's NextUp feature</description>
+		<summary lang="en_GB">Bluetooth inactivity timer, sleep (media and TV!) timer, and UpNext all in one</summary>
+		<description lang="en_GB">(1) The sleep timer checks for inactivity - then pauses media and turns off the TV. (2) BT inactivity does the same and turns off your bluetooth controllers. (3) UpNext is a copy of Netflix's NextUp feature</description>
 		<language></language>
 		<platform>all</platform>
   </extension>

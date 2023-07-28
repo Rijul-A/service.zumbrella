@@ -165,7 +165,7 @@ msgid "Play/Pause"
 msgstr ""
 
 msgctxt "#32038"
-msgid "TV Details"
+msgid "TV Service"
 msgstr ""
 
 msgctxt "#32039"
