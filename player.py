@@ -2,7 +2,7 @@ import xbmc
 
 
 class Player( xbmc.Player ):
-    def __init__( self, *args, **kwargs ):
+    def __init__( self, **kwargs ):
         xbmc.Player.__init__( self )
         self.avStartedAction = kwargs.get( 'avStartedAction' )
         self.playBackPausedAction = kwargs.get( 'playBackPausedAction' )

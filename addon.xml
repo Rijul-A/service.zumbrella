@@ -5,13 +5,10 @@
 		<import addon="script.module.six" version="1.14.0+matrix.2" />
 		<import addon="script.module.kodi-six" version="0.1.3+1" />
 	</requires>
-	<extension point="xbmc.python.script" library="gui.py">
-		<provides>executable</provides>
-	</extension>
   <extension point="xbmc.service" library="main_service.py" start="login"/>
   <extension point="xbmc.addon.metadata">
-		<summary lang="en_GB">Bluetooth inactivity timer, sleep (media and TV!) timer, and UpNext all in one</summary>
-		<description lang="en_GB">(1) The sleep timer checks for inactivity - then pauses media and turns off the TV. (2) BT inactivity does the same and turns off your bluetooth controllers. (3) UpNext is a copy of Netflix's NextUp feature</description>
+		<summary lang="en_GB">zUmbrella Service</summary>
+		<description lang="en_GB">zUmbrella Service</description>
 		<language></language>
 		<platform>all</platform>
   </extension>

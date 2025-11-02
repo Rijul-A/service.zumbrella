@@ -1,7 +1,7 @@
 import xbmc
 
 __PLUGIN_ID__ = 'service.zumbrella'
-__PLUGIN_VERSION__ = 'v0.0.5-matrix'
+__PLUGIN_VERSION__ = 'v0.0.6-matrix'
 
 
 class Logger:

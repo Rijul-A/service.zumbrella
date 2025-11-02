@@ -1,10 +1,10 @@
 import xbmc
 
-from common import Logger
+from logger import Logger
 
 
 class Monitor( xbmc.Monitor, Logger ):
-    def __init__( self, *args, **kwargs ):
+    def __init__( self, **kwargs ):
         xbmc.Monitor.__init__( self )
         self.log( 'Instantiating monitor' )
         self.reloadAction = kwargs.get( 'reloadAction' )
