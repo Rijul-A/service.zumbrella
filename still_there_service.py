@@ -1,13 +1,15 @@
 import six
+import subprocess
 import time
 
-import xbmc
+import xbmc, xbmcgui
 
 from common import (
     get_player_id,
     json_rpc,
     read_bool_setting,
     read_int_setting,
+    VIDEO_WINDOW_IDS
 )
 from custom_dialog import CustomDialog
 from logger import Logger
@@ -238,6 +240,10 @@ class StillThereService( Logger ):
                         ((self.last_continue_click_time is None) or \
                             (self.last_continue_click_time is not None and \
                             time.time() - self.last_continue_click_time >= threshold / 2))
+            current_window_id = xbmcgui.getCurrentWindowId()
+            if current_window_id not in VIDEO_WINDOW_IDS:
+                self.log( 'Current window is not a video window' )
+                return
             if condition:
                 if xbmc.getCondVisibility( 'Player.Playing' ):
                     self.log(
@@ -259,7 +265,7 @@ class StillThereService( Logger ):
                     )
                     xbmc.Player().stop()
                     # use the main service to request tv turn off
-                    self.main_service.tv_service.power( False )
+                    # self.main_service.tv_service.power( False )
             else:
                 self.log(
                     'Inactive time of {} seconds is < than the '

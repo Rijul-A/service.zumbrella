@@ -41,6 +41,7 @@ def json_rpc( **kwargs ):
 
 
 __MAX_TRIES__ = 100
+VIDEO_WINDOW_IDS = [ 10147, 12005 ]
 
 
 def get_player_id():

@@ -3,7 +3,7 @@ import os
 
 import xbmc, xbmcaddon
 
-from bluetooth_service import BluetoothService
+# from bluetooth_service import BluetoothService
 from common import ( get_player_id, json_rpc, read_int_setting )
 from logger import Logger
 from monitor import Monitor
@@ -31,7 +31,6 @@ class MainService( Logger ):
             playbackErrorAction = self.onPlayBackError,
             playBackStoppedAction = self.onPlayBackStopped,
         )
-        self.bluetooth_service = BluetoothService( self.addon )
         self.still_there_service = StillThereService(
             self.addon,
             self.monitor,
@@ -47,7 +46,6 @@ class MainService( Logger ):
             None
         )
         self.services = [
-            self.bluetooth_service,
             self.still_there_service,
             self.tv_service,
             self.upnext_service

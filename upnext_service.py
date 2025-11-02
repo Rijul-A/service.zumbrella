@@ -1,8 +1,8 @@
 from threading import Timer
 
-import xbmc
+import xbmc, xbmcgui
 
-from common import ( json_rpc, read_float_setting )
+from common import ( json_rpc, read_float_setting, VIDEO_WINDOW_IDS )
 from custom_dialog import CustomDialog
 from logger import Logger
 from still_there_service import StillThereService
@@ -187,6 +187,10 @@ class UpNextService( StillThereService, Logger ):
             return
         video_completion_percentage = current_time / self.total_time
         if video_completion_percentage >= self.min_video_completion_percentage:
+            current_window_id = xbmcgui.getCurrentWindowId()
+            if current_window_id not in VIDEO_WINDOW_IDS:
+                self.log( 'Current window is not a video window' )
+                return
             self.max_time_remaining = self.total_time * (
                 1 - video_completion_percentage
             )  # don't use max here, use the discovery point value
