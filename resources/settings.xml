@@ -2,4 +2,8 @@
 <settings>
 	<setting id="debug" type="bool" label="32036" default="false"/>
 	<setting id="preferred_language" type="text" label="32037" default="eng"/>
+	<setting id="tv_ip" type="ipaddress" label="32038" default="192.168.1.2"/>
+	<setting id="tv_password" type="text" label="32039" default="" option="hidden"/>
+	<setting id="tv_hdmi_port" type="number" label="32040" default="4"/>
+	<setting id="tv_mac_address" type="text" label="32041" default="AA:BB:CC:DD:EE:FF"/>
 </settings>
