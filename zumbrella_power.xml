@@ -1,0 +1,90 @@
+<keymap>
+  <global>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <volume_mute>RunScript(special://home/addons/service.zumbrella/tv_service.py, vol_mute)</volume_mute>
+      <volume_down>RunScript(special://home/addons/service.zumbrella/tv_service.py, vol_down)</volume_down>
+      <volume_up>RunScript(special://home/addons/service.zumbrella/tv_service.py, vol_up)</volume_up>
+    </keyboard>
+  </global>
+  <Home>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </Home>
+  <FullscreenVideo>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </FullscreenVideo>
+  <FullscreenGame>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </FullscreenGame>
+  <FullscreenInfo>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </FullscreenInfo>
+  <Visualisation>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </Visualisation>
+  <MusicOSD>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </MusicOSD>
+  <VisualisationPresetList>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py)</i>
+    </keyboard>
+  </VisualisationPresetList>
+  <SlideShow>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py)</i>
+    </keyboard>
+  </SlideShow>
+  <VideoOSD>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </VideoOSD>
+  <VideoMenu>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </VideoMenu>
+  <OSDVideoSettings>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </OSDVideoSettings>
+  <OSDAudioSettings>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </OSDAudioSettings>
+  <MusicInformation>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </MusicInformation>
+  <MovieInformation>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </MovieInformation>
+  <PictureInfo>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </PictureInfo>
+  <AddonInformation>
+    <keyboard>
+      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+    </keyboard>
+  </AddonInformation>
+</keymap>

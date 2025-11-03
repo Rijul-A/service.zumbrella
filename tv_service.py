@@ -47,6 +47,13 @@ class TV( Logger ):
 
 
 class Bravia( TV ):
+    # IRCC (Infrared Remote Control Command) codes for TV control
+    IRCC_CODES = {
+        "mute": "AAAAAQAAAAEAAAAUAw==",
+        "vol_down": "AAAAAQAAAAEAAAATAw==",
+        "vol_up": "AAAAAQAAAAEAAAASAw==",
+    }
+
     def send( self, service, method, params, request_id = 1 ):
         """Send a request to the TV API."""
         self.log(
@@ -76,6 +83,35 @@ class Bravia( TV ):
                 f"HTTP Request failed for {method}: {e}",
                 mode = xbmc.LOGERROR
             )
+            return None
+
+    def send_ircc_code( self, ircc_code ):
+        url = self.endpoint + 'ircc'
+        payload = (
+            '<?xml version="1.0"?>'
+            '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
+            '<s:Body>'
+            '<u:X_SendIRCC xmlns:u="urn:schemas-sony-com:service:IRCC:1">'
+            '<IRCCCode>%s</IRCCCode>'
+            '</u:X_SendIRCC>'
+            '</s:Body>'
+            '</s:Envelope>'
+        ) % ircc_code
+        headers = {
+            'X-Auth-PSK': self.security_token,
+            'SOAPAction': '"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC"'
+        }
+        try:
+            response = requests.post(
+                url,
+                data = payload,
+                headers = headers,
+                timeout = REQUEST_TIMEOUT
+            )
+            response.raise_for_status()
+            return response
+        except requests.exceptions.RequestException as e:
+            self.log( f"Failed to send IRCC code: {e}", mode = xbmc.LOGERROR )
             return None
 
     def setPower( self, val ):
@@ -172,13 +208,22 @@ class Bravia( TV ):
             )
             return None
 
+    def mute( self ):
+        self.send_ircc_code( self.IRCC_CODES[ "mute" ] )
 
-class BraviaPowerControl( Logger ):
+    def vol_down( self ):
+        self.send_ircc_code( self.IRCC_CODES[ "vol_down" ] )
+
+    def vol_up( self ):
+        self.send_ircc_code( self.IRCC_CODES[ "vol_up" ] )
+
+
+class BraviaControl( Logger ):
     """
     Called by the keymap to run once and exit.
     """
     def __init__( self ):
-        super().__init__( tag = "BraviaPowerControl" )
+        super().__init__( tag = "BraviaControl" )
         self.log( "Script initiated." )
         self.monitor = Monitor()
         if not all(
@@ -208,7 +253,7 @@ class BraviaPowerControl( Logger ):
         target_title = f"HDMI {TV_HDMI_PORT}"
         return current_title.startswith( target_title )
 
-    def run( self ):
+    def power_control( self ):
         """Main execution logic"""
         current_status = self.bravia.getPowerStatus()
         if current_status == "active":
@@ -239,11 +284,28 @@ class BraviaPowerControl( Logger ):
             self.log( f"Switching to HDMI {TV_HDMI_PORT}." )
             self.bravia.setExtInput( 'hdmi', str( TV_HDMI_PORT ) )
 
+    def run( self, action ):
+        if action == "power_control":
+            self.power_control()
+        elif action == "vol_mute":
+            self.bravia.mute()
+        elif action == "vol_down":
+            self.bravia.vol_down()
+        elif action == "vol_up":
+            self.bravia.vol_up()
+
 
 if __name__ == "__main__":
+    if len( sys.argv ) != 2:
+        xbmc.log(
+            "Usage: RunScript(special://home/addons/service.zumbrella/tv_service.py, <action>)",
+            mode = xbmc.LOGERROR
+        )
+        sys.exit( 1 )
+    action = sys.argv[ 1 ]
     try:
-        control = BraviaPowerControl()
-        control.run()
+        control = BraviaControl()
+        control.run( action )
     except SystemExit:
         pass
     except Exception as e:
