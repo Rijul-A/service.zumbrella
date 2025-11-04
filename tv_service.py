@@ -1,4 +1,5 @@
 import json
+import sys
 import requests
 
 import xbmc
@@ -12,29 +13,43 @@ TV_WAKE_DELAY_SECONDS = 1
 PLAYBACK_STOP_DELAY_SECONDS = 1
 POWER_STATUS_REQUEST_ID = 50
 
-try:
-    ADDON_ID = 'service.zumbrella'
-    ADDON = xbmcaddon.Addon( id = ADDON_ID )
-    if ADDON.getSetting( 'debug' ) == 'true':
-        Logger.set_log_mode( xbmc.LOGDEBUG )
-    else:
-        Logger.set_log_mode( xbmc.LOGINFO )
-    TV_IP = ADDON.getSetting( 'tv_ip' )
-    TV_PSK = ADDON.getSetting( 'tv_password' )
-    TV_HDMI_PORT = ADDON.getSetting( 'tv_hdmi_port' )
-    TV_MAC = ADDON.getSetting( 'tv_mac_address' )
-    TV_ENDPOINT = f"http://{TV_IP}/sony/"
-except Exception as e:
-    # Use safe fallback if ADDON_ID wasn't set
+
+# Load settings from settings.xml only in main
+def load_settings():
     try:
-        addon_id = ADDON_ID
-    except NameError:
         addon_id = 'service.zumbrella'
-    xbmc.log(
-        f"[{addon_id}] CRITICAL ERROR: Could not read settings: {e}",
-        mode = xbmc.LOGERROR
-    )
-    raise SystemExit( f"Failed to load settings: {e}" )
+        addon = xbmcaddon.Addon( id = addon_id )
+        if addon.getSetting( 'debug' ) == 'true':
+            Logger.set_log_mode( xbmc.LOGDEBUG )
+        else:
+            Logger.set_log_mode( xbmc.LOGINFO )
+        tv_ip = addon.getSetting( 'tv_ip' )
+        tv_psk = addon.getSetting( 'tv_password' )
+        tv_hdmi_port = addon.getSetting( 'tv_hdmi_port' )
+        tv_mac = addon.getSetting( 'tv_mac_address' )
+        # Validate settings before constructing endpoint
+        if not all(
+            [
+                tv_ip and tv_ip.strip(),
+                tv_psk and tv_psk.strip(),
+                tv_hdmi_port and tv_hdmi_port.strip(),
+                tv_mac and tv_mac.strip()
+            ]
+        ):
+            xbmc.executebuiltin(
+                'Notification(Zumbrella Error, Check add-on settings, 5000)'
+            )
+            raise ValueError(
+                "TV IP, PSK, HDMI Port, or MAC is not set in settings"
+            )
+        tv_endpoint = f"http://{tv_ip}/sony/"
+        return tv_ip, tv_psk, tv_hdmi_port, tv_mac, tv_endpoint
+    except Exception as e:
+        xbmc.log(
+            f"[{addon_id}] CRITICAL ERROR: Could not read settings: {e}",
+            mode = xbmc.LOGERROR
+        )
+        raise SystemExit( f"Failed to load settings: {e}" )
 
 
 class TV( Logger ):
@@ -133,7 +148,7 @@ class Bravia( TV ):
 
     def getPowerStatus( self ):
         """Get current TV power status. Returns 'active' or 'standby'."""
-        self.log( "Getting power status..." )
+        self.log( "Getting power status...", xbmc.LOGDEBUG )
         try:
             response = self.send(
                 'system',
@@ -152,7 +167,7 @@ class Bravia( TV ):
                 js = response.json()
                 if 'result' in js and js.get( 'result' ):
                     status = js[ 'result' ][ 0 ].get( 'status', 'standby' )
-                    self.log( f"TV power status is: {status}" )
+                    self.log( f"TV power status is: {status}", xbmc.LOGDEBUG )
                     return status
             except ( ValueError, KeyError, IndexError ) as e:
                 self.log(
@@ -173,7 +188,7 @@ class Bravia( TV ):
 
     def getPlayingContentInfo( self ):
         """Get information about currently playing content on TV."""
-        self.log( "Getting current playing content..." )
+        self.log( "Getting current playing content...", xbmc.LOGDEBUG )
         try:
             response = self.send( 'avContent', 'getPlayingContentInfo', None )
             if response is None or response.status_code != 200:
@@ -220,29 +235,26 @@ class Bravia( TV ):
 
 class BraviaControl( Logger ):
     """
-    Called by the keymap to run once and exit.
+    TV control class for Bravia TVs.
+    Requires TV settings as constructor parameters.
+    When used as standalone script (__main__), settings are loaded via load_settings().
+    When imported, caller must provide all required parameters.
     """
-    def __init__( self ):
+    def __init__( self, tv_ip, tv_psk, tv_hdmi_port, tv_mac, tv_endpoint ):
         super().__init__( tag = "BraviaControl" )
-        self.log( "Script initiated." )
+        self.log( "Script initiated.", mode = xbmc.LOGDEBUG )
         self.monitor = Monitor()
-        if not all(
-            [
-                TV_IP and TV_IP.strip(),
-                TV_PSK and TV_PSK.strip(),
-                TV_HDMI_PORT and TV_HDMI_PORT.strip(),
-                TV_MAC and TV_MAC.strip()
-            ]
-        ):
-            self.log(
-                "TV IP, PSK, HDMI Port, or MAC is not set in settings. Aborting.",
-                mode = xbmc.LOGERROR
-            )
-            xbmc.executebuiltin(
-                'Notification(Zumbrella Error, Check add-on settings, 5000)'
-            )
-            raise SystemExit( "Invalid Settings" )
-        self.bravia = Bravia( 'Bravia', TV_IP, TV_ENDPOINT, TV_PSK )
+        self.tv_ip = tv_ip
+        self.tv_psk = tv_psk
+        self.tv_hdmi_port = tv_hdmi_port
+        self.tv_mac = tv_mac
+        self.tv_endpoint = tv_endpoint
+        self.bravia = Bravia(
+            'Bravia',
+            self.tv_ip,
+            self.tv_endpoint,
+            self.tv_psk
+        )
 
     def check_input( self ):
         """Check if the TV is on the correct input."""
@@ -250,49 +262,82 @@ class BraviaControl( Logger ):
         if content_info is None:
             return False
         current_title = content_info.get( 'title', '' )
-        target_title = f"HDMI {TV_HDMI_PORT}"
+        target_title = f"HDMI {self.tv_hdmi_port}"
         return current_title.startswith( target_title )
 
     def power_control( self ):
         """Main execution logic"""
         current_status = self.bravia.getPowerStatus()
         if current_status == "active":
-            # TV IS ON: Turn it OFF.
-            self.log( "TV is ON. Stopping playback and turning TV OFF." )
+            self.log(
+                "TV is ON. Checking if it is on the correct input.",
+                xbmc.LOGDEBUG
+            )
+            if not self.check_input():
+                self.log(
+                    "TV is on another input, not turning off.",
+                    mode = xbmc.LOGDEBUG
+                )
+                return
+            self.log(
+                "TV is ON and on the correct input. Stopping playback and turning TV OFF.",
+                mode = xbmc.LOGDEBUG
+            )
             if xbmc.Player().isPlaying():
-                self.log( "Stopping Kodi playback." )
+                self.log( "Stopping Kodi playback.", mode = xbmc.LOGDEBUG )
                 xbmc.Player().stop()
                 self.monitor.waitForAbort( PLAYBACK_STOP_DELAY_SECONDS )
-            # check if the TV is on the correct input
-            if not self.check_input():
-                self.log( "TV is on another input, not turning off." )
-                return
-            self.log( "Turning off TV." )
+            self.log( "Turning off TV.", mode = xbmc.LOGDEBUG )
             self.bravia.setPower( False )
         else:
             # TV IS OFF (or in standby): Turn it ON.
-            self.log( "TV is OFF. Sending Wake-on-LAN and switching input." )
-            self.log( f"Sending WakeOnLan command to {TV_MAC}" )
-            xbmc.executebuiltin( f'WakeOnLan("{TV_MAC}")' )
+            self.log(
+                "TV is OFF. Sending Wake-on-LAN and switching input.",
+                mode = xbmc.LOGDEBUG
+            )
+            self.log(
+                f"Sending WakeOnLan command to {self.tv_mac}",
+                mode = xbmc.LOGDEBUG
+            )
+            xbmc.executebuiltin( f'WakeOnLan("{self.tv_mac}")' )
             self.bravia.setPower( True )
-            self.log( f"Waiting {TV_WAKE_DELAY_SECONDS}s for TV to wake..." )
+            self.log(
+                f"Waiting {TV_WAKE_DELAY_SECONDS}s for TV to wake...",
+                mode = xbmc.LOGDEBUG
+            )
             self.monitor.waitForAbort( TV_WAKE_DELAY_SECONDS )
-            # check if the TV is on the correct input
             if self.check_input():
-                self.log( "TV is already on the correct input." )
+                self.log(
+                    "TV is already on the correct input.",
+                    mode = xbmc.LOGDEBUG
+                )
                 return
-            self.log( f"Switching to HDMI {TV_HDMI_PORT}." )
-            self.bravia.setExtInput( 'hdmi', str( TV_HDMI_PORT ) )
+            self.log(
+                f"Switching to HDMI {self.tv_hdmi_port}.",
+                mode = xbmc.LOGDEBUG
+            )
+            self.bravia.setExtInput( 'hdmi', str( self.tv_hdmi_port ) )
 
     def run( self, action ):
         if action == "power_control":
+            self.log( "Performing power control.", xbmc.LOGDEBUG )
             self.power_control()
-        elif action == "vol_mute":
-            self.bravia.mute()
-        elif action == "vol_down":
-            self.bravia.vol_down()
-        elif action == "vol_up":
-            self.bravia.vol_up()
+        elif self.check_input():
+            self.log(
+                "TV is on the correct input. Performing volume action.",
+                xbmc.LOGDEBUG
+            )
+            if action == "vol_mute":
+                self.bravia.mute()
+            elif action == "vol_down":
+                self.bravia.vol_down()
+            elif action == "vol_up":
+                self.bravia.vol_up()
+        else:
+            self.log(
+                "TV is not on the correct input. Not performing action.",
+                xbmc.LOGDEBUG
+            )
 
 
 if __name__ == "__main__":
@@ -304,7 +349,14 @@ if __name__ == "__main__":
         sys.exit( 1 )
     action = sys.argv[ 1 ]
     try:
-        control = BraviaControl()
+        tv_ip, tv_psk, tv_hdmi_port, tv_mac, tv_endpoint = load_settings()
+        control = BraviaControl(
+            tv_ip,
+            tv_psk,
+            tv_hdmi_port,
+            tv_mac,
+            tv_endpoint
+        )
         control.run( action )
     except SystemExit:
         pass

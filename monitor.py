@@ -9,6 +9,7 @@ class Monitor( xbmc.Monitor, Logger ):
         self.log( 'Instantiating monitor' )
         self.reloadAction = kwargs.get( 'reloadAction' )
         self.screensaverAction = kwargs.get( 'screensaverAction' )
+        self.notificationAction = kwargs.get( 'notificationAction' )
 
     def onScreensaverActivated( self ):
         self.log( 'onScreensaverActivated' )
@@ -20,12 +21,9 @@ class Monitor( xbmc.Monitor, Logger ):
             self.reloadAction()
 
     def onNotification( self, sender, method, data ):
-        self.log(
-            "sender %s - method: %s  - data: %s" % ( sender,
-                                                     method,
-                                                     data )
-        )
-        # the opposite method is GUI.OnScreensaverDeactivated
         if sender == 'xbmc' and method == 'GUI.OnDPMSActivated':
             if self.screensaverAction:
                 self.screensaverAction()
+        else:
+            if self.notificationAction:
+                self.notificationAction( sender, method, data )

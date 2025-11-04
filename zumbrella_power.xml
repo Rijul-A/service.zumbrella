@@ -1,90 +1,90 @@
 <keymap>
   <global>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
-      <volume_mute>RunScript(special://home/addons/service.zumbrella/tv_service.py, vol_mute)</volume_mute>
-      <volume_down>RunScript(special://home/addons/service.zumbrella/tv_service.py, vol_down)</volume_down>
-      <volume_up>RunScript(special://home/addons/service.zumbrella/tv_service.py, vol_up)</volume_up>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
+      <volume_mute>NotifyAll("service.zumbrella", "TV.VolumeMute")</volume_mute>
+      <volume_down>NotifyAll("service.zumbrella", "TV.VolumeDown")</volume_down>
+      <volume_up>NotifyAll("service.zumbrella", "TV.VolumeUp")</volume_up>
     </keyboard>
   </global>
   <Home>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </Home>
   <FullscreenVideo>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </FullscreenVideo>
   <FullscreenGame>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </FullscreenGame>
   <FullscreenInfo>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </FullscreenInfo>
   <Visualisation>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </Visualisation>
   <MusicOSD>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </MusicOSD>
   <VisualisationPresetList>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </VisualisationPresetList>
   <SlideShow>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </SlideShow>
   <VideoOSD>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </VideoOSD>
   <VideoMenu>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </VideoMenu>
   <OSDVideoSettings>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </OSDVideoSettings>
   <OSDAudioSettings>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </OSDAudioSettings>
   <MusicInformation>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </MusicInformation>
   <MovieInformation>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </MovieInformation>
   <PictureInfo>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </PictureInfo>
   <AddonInformation>
     <keyboard>
-      <i>RunScript(special://home/addons/service.zumbrella/tv_service.py, power_control)</i>
+      <i>NotifyAll("service.zumbrella", "TV.PowerControl")</i>
     </keyboard>
   </AddonInformation>
 </keymap>

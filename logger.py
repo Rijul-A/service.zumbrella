@@ -12,7 +12,8 @@ class Logger:
 
     def log( self, msg, mode = None ):
         # allow for mode overrides
-        mode = mode or Logger.LOG_MODE
+        if mode is None:
+            mode = Logger.LOG_MODE
         xbmc.log(
             "[{}_{}]: {} - {}".format(
                 __PLUGIN_ID__,

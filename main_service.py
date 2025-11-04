@@ -6,6 +6,7 @@ from common import ( get_player_id, json_rpc, KodiJSONRPCError )
 from logger import Logger
 from monitor import Monitor
 from player import Player
+from tv_service import BraviaControl
 
 
 class MainService( Logger ):
@@ -16,7 +17,8 @@ class MainService( Logger ):
             self.addon = xbmcaddon.Addon()
             self.monitor = Monitor(
                 reloadAction = self.onSettingsChanged,
-                screensaverAction = self.onScreensaverActivated
+                screensaverAction = self.onScreensaverActivated,
+                notificationAction = self.onNotification
             )
             self.player = Player(
                 avStartedAction = self.onAVStarted,
@@ -26,13 +28,50 @@ class MainService( Logger ):
                 playbackErrorAction = self.onPlayBackError,
                 playBackStoppedAction = self.onPlayBackStopped,
             )
-            self.refresh_settings()
+            tv_settings_valid = self.refresh_settings()
+            if tv_settings_valid:
+                self.bravia_control = BraviaControl(
+                    self.tv_ip,
+                    self.tv_psk,
+                    self.tv_hdmi_port,
+                    self.tv_mac,
+                    self.tv_endpoint
+                )
+            else:
+                self.bravia_control = None
+                self.log(
+                    'TV settings not configured, TV control disabled',
+                    xbmc.LOGWARNING
+                )
         except Exception as e:
             self.log(
                 'Failed to initialize MainService: %s' % str( e ),
                 xbmc.LOGERROR
             )
             raise
+
+    def onNotification( self, sender, method, data ):
+        if sender == 'service.zumbrella':
+            if self.bravia_control is None:
+                self.log(
+                    'TV control not available (settings not configured)',
+                    xbmc.LOGDEBUG
+                )
+                return
+            # For some reason, the method is prefixed with "Other."
+            method = method.replace( 'Other.', '' )
+            if method == 'TV.PowerControl':
+                self.bravia_control.run( 'power_control' )
+            elif method == 'TV.VolumeMute':
+                self.bravia_control.run( 'vol_mute' )
+            elif method == 'TV.VolumeDown':
+                self.bravia_control.run( 'vol_down' )
+            elif method == 'TV.VolumeUp':
+                self.bravia_control.run( 'vol_up' )
+            else:
+                self.log( 'Unknown TV command: %s' % method, xbmc.LOGERROR )
+        else:
+            self.log( 'Unknown sender: %s' % sender, xbmc.LOGDEBUG )
 
     def onAVStarted( self ):
         self.log( 'onAVStarted' )
@@ -72,7 +111,27 @@ class MainService( Logger ):
     def onSettingsChanged( self ):
         Logger.set_log_mode( xbmc.LOGINFO )
         self.log( 'Received notification to reload settings, doing so now' )
-        self.refresh_settings()
+        tv_settings_valid = self.refresh_settings()
+        # Recreate bravia_control if settings changed
+        if tv_settings_valid:
+            try:
+                self.bravia_control = BraviaControl(
+                    self.tv_ip,
+                    self.tv_psk,
+                    self.tv_hdmi_port,
+                    self.tv_mac,
+                    self.tv_endpoint
+                )
+                self.log( 'TV control reinitialized with new settings' )
+            except Exception as e:
+                self.log(
+                    'Failed to reinitialize TV control: %s' % str( e ),
+                    xbmc.LOGERROR
+                )
+                self.bravia_control = None
+        else:
+            self.bravia_control = None
+            self.log( 'TV control disabled due to invalid settings' )
 
     def refresh_settings( self ):
         try:
@@ -81,14 +140,44 @@ class MainService( Logger ):
                 MainService.__SETTING_LOG_MODE_BOOL__
             ) == 'true'
             self.log( 'debugMode: {}'.format( debugMode ) )
+            self.tv_ip = self.addon.getSetting( 'tv_ip' )
+            self.log( 'tv_ip: {}'.format( self.tv_ip ) )
+            self.tv_psk = self.addon.getSetting( 'tv_password' )
+            self.log( 'tv_psk: {}'.format( self.tv_psk ) )
+            self.tv_hdmi_port = self.addon.getSetting( 'tv_hdmi_port' )
+            self.log( 'tv_hdmi_port: {}'.format( self.tv_hdmi_port ) )
+            self.tv_mac = self.addon.getSetting( 'tv_mac_address' )
+            self.log( 'tv_mac: {}'.format( self.tv_mac ) )
+            # Validate TV settings (non-critical - service can still run)
+            tv_settings_valid = all(
+                [
+                    self.tv_ip and self.tv_ip.strip(),
+                    self.tv_psk and self.tv_psk.strip(),
+                    self.tv_hdmi_port and self.tv_hdmi_port.strip(),
+                    self.tv_mac and self.tv_mac.strip()
+                ]
+            )
+            if tv_settings_valid:
+                self.tv_endpoint = f"http://{self.tv_ip}/sony/"
+                self.log( 'tv_endpoint: {}'.format( self.tv_endpoint ) )
+            else:
+                self.log(
+                    'TV IP, PSK, HDMI Port, or MAC is not set in settings. TV control disabled.',
+                    xbmc.LOGWARNING
+                )
+                xbmc.executebuiltin(
+                    'Notification(Zumbrella Warning, TV settings not configured, 5000)'
+                )
             if not debugMode:
                 self.log( 'Addon going quiet due to debugMode disabled' )
             # When debug mode is ON, use LOGDEBUG (verbose), otherwise LOGINFO (normal)
             Logger.set_log_mode( xbmc.LOGDEBUG if debugMode else xbmc.LOGINFO )
+            return tv_settings_valid
         except Exception as e:
             self.log( 'Error reading settings: %s' % str( e ), xbmc.LOGERROR )
             # Default to INFO level if settings can't be read
             Logger.set_log_mode( xbmc.LOGINFO )
+            return False
 
     def activate_subtitles( self, lang = None ):
         try:
