@@ -107,6 +107,8 @@ class MainService( Logger ):
 
     def onScreensaverActivated( self ):
         self.log( 'onScreensaverActivated' )
+        if self.bravia_control is not None:
+            self.bravia_control.run( 'power_control' )
 
     def onSettingsChanged( self ):
         Logger.set_log_mode( xbmc.LOGINFO )
