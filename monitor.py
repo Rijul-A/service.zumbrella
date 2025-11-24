@@ -9,12 +9,18 @@ class Monitor( xbmc.Monitor, Logger ):
         self.log( 'Instantiating monitor' )
         self.reloadAction = kwargs.get( 'reloadAction' )
         self.screensaverAction = kwargs.get( 'screensaverAction' )
+        self.descreensaverAction = kwargs.get( 'descreensaverAction' )
         self.notificationAction = kwargs.get( 'notificationAction' )
 
     def onScreensaverActivated( self ):
         self.log( 'onScreensaverActivated' )
         if self.screensaverAction:
             self.screensaverAction()
+
+    def onScreensaverDeactivated( self ):
+        self.log( 'onScreensaverDeactivated' )
+        if self.descreensaverAction:
+            self.descreensaverAction()
 
     def onSettingsChanged( self ):
         if self.reloadAction:

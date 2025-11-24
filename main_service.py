@@ -18,6 +18,7 @@ class MainService( Logger ):
             self.monitor = Monitor(
                 reloadAction = self.onSettingsChanged,
                 screensaverAction = self.onScreensaverActivated,
+                descreensaverAction = self.onScreensaverDeactivated,
                 notificationAction = self.onNotification
             )
             self.player = Player(
@@ -70,8 +71,6 @@ class MainService( Logger ):
                 self.bravia_control.run( 'vol_up' )
             else:
                 self.log( 'Unknown TV command: %s' % method, xbmc.LOGERROR )
-        else:
-            self.log( 'Unknown sender: %s' % sender, xbmc.LOGDEBUG )
 
     def onAVStarted( self ):
         self.log( 'onAVStarted' )
@@ -108,7 +107,15 @@ class MainService( Logger ):
     def onScreensaverActivated( self ):
         self.log( 'onScreensaverActivated' )
         if self.bravia_control is not None:
-            self.bravia_control.run( 'power_control' )
+            # we use `_off` to indicate turn off; for some reason,
+            # this event is fired multiple times after the screensaver
+            # is first activated. we only want to turn off the TV once.
+            self.bravia_control.run( 'power_control_off' )
+
+    def onScreensaverDeactivated( self ):
+        self.log( 'onScreensaverDeactivated' )
+        if self.bravia_control is not None:
+            self.bravia_control.run( 'power_control_on' )
 
     def onSettingsChanged( self ):
         Logger.set_log_mode( xbmc.LOGINFO )

@@ -265,10 +265,16 @@ class BraviaControl( Logger ):
         target_title = f"HDMI {self.tv_hdmi_port}"
         return current_title.startswith( target_title )
 
-    def power_control( self ):
+    def power_control( self, action = None ):
         """Main execution logic"""
         current_status = self.bravia.getPowerStatus()
         if current_status == "active":
+            if action == "on":
+                self.log(
+                    "TV is already on. Not turning it on.",
+                    mode = xbmc.LOGDEBUG
+                )
+                return
             self.log(
                 "TV is ON. Checking if it is on the correct input.",
                 xbmc.LOGDEBUG
@@ -290,6 +296,12 @@ class BraviaControl( Logger ):
             self.log( "Turning off TV.", mode = xbmc.LOGDEBUG )
             self.bravia.setPower( False )
         else:
+            if action == "off":
+                self.log(
+                    "TV is already off. Not turning it on.",
+                    mode = xbmc.LOGDEBUG
+                )
+                return
             # TV IS OFF (or in standby): Turn it ON.
             self.log(
                 "TV is OFF. Sending Wake-on-LAN and switching input.",
@@ -319,9 +331,14 @@ class BraviaControl( Logger ):
             self.bravia.setExtInput( 'hdmi', str( self.tv_hdmi_port ) )
 
     def run( self, action ):
-        if action == "power_control":
-            self.log( "Performing power control.", xbmc.LOGDEBUG )
-            self.power_control()
+        if action.startswith( "power_control" ):
+            self.log( f"Performing power control: {action}", xbmc.LOGDEBUG )
+            if action == "power_control_off":
+                self.power_control( 'off' )
+            elif action == "power_control_on":
+                self.power_control( 'on' )
+            else:
+                self.power_control()
         elif self.check_input():
             self.log(
                 "TV is on the correct input. Performing volume action.",
