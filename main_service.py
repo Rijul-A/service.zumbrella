@@ -223,15 +223,21 @@ class MainService( Logger ):
                 index = subtitles[ 0 ].get( 'index' )
             else:
                 self.log( 'Choosing appropriate subtitle' )
+                # our order of preference is:
+                # 1. internal subtitle with matching language
+                # 2. any subtitle with matching language
+                # 3. default subtitle
+                # 4. internal subtitle without any language
+                # 5. any subtitle without any language
                 constraints = {
-                    "prefer default": lambda x: x.get( 'isdefault', False ),
                     "internal with language": lambda x: x.get( 'language', '' )
                     == lang and 'external' not in x.get( 'name', '' ).lower(),
+                    "any with language": lambda x: x.get( 'language', ''
+                                                         ) == lang,
+                    "prefer default": lambda x: x.get( 'isdefault', False ),
                     "internal without language": lambda x: x.get(
                         'language', ''
                     ) == '' and 'external' not in x.get( 'name', '' ).lower(),
-                    "any with language": lambda x: x.get( 'language', ''
-                                                         ) == lang,
                     "any without language": lambda x: x.get( 'language', ''
                                                             ) == '',
                 }
