@@ -44,6 +44,11 @@ except ( RuntimeError, ValueError ) as e:
 REQUEST_TIMEOUT = 3
 
 
+class BraviaTVError( Exception ):
+    """Raised when the TV request fails (HTTP error or invalid JSON)."""
+    pass
+
+
 def wake_on_lan( mac ):
     add_oct = mac.replace( ':', '' ).replace( '-', '' )
     data = b'FFFFFFFFFFFF' + ( add_oct * 16 ).encode()
@@ -105,12 +110,20 @@ class MediaController:
             "id": 1,
             "params": [ params ] if params else []
         }
-        return requests.post(
+        r = requests.post(
             self.tv_url + service,
             json = body,
             headers = headers,
             timeout = REQUEST_TIMEOUT
-        ).json()
+        )
+        if not r.ok:
+            raise BraviaTVError(
+                f"TV returned {r.status_code}: {r.text[:200]}"
+            )
+        try:
+            return r.json()
+        except ValueError:
+            raise BraviaTVError( "TV returned invalid JSON" )
 
     def tv_ircc( self, code_key ):
         codes = {
@@ -123,64 +136,94 @@ class MediaController:
             'SOAPAction': '"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC"'
         }
         payload = f'<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:X_SendIRCC xmlns:u="urn:schemas-sony-com:service:IRCC:1"><IRCCCode>{codes[code_key]}</IRCCCode></u:X_SendIRCC></s:Body></s:Envelope>'
-        requests.post(
-            self.tv_url + 'ircc',
-            data = payload,
-            headers = headers,
-            timeout = REQUEST_TIMEOUT
-        )
+        try:
+            r = requests.post(
+                self.tv_url + 'ircc',
+                data = payload,
+                headers = headers,
+                timeout = REQUEST_TIMEOUT
+            )
+            return r.json() if r.text.strip() else {}
+        except ( ValueError, requests.RequestException ):
+            return {}
 
 
 class BraviaHandler( BaseHTTPRequestHandler ):
+    def _send_json( self, code, body ):
+        self.send_response( code )
+        self.send_header( "Content-Type", "application/json" )
+        self.end_headers()
+        self.wfile.write( json.dumps( body ).encode() )
+
     def do_GET( self ):
         slug = self.path.strip( "/" ).replace( ".", "" ).casefold()
         ctrl = MediaController()
-        # toggle power
-        if slug == "tvpowercontrol":
-            self.send_response( 200 )
-            self.end_headers()
-            status_resp = ctrl.tv_req( 'system', 'getPowerStatus' )
-            status = ( status_resp or {} ).get( 'result',
-                                                [ {} ] )[ 0 ].get( 'status' )
-            if status == 'active':
-                ctrl.kodi_stop()
-                ctrl.tv_req( 'system',
-                             'setPowerStatus',
-                             {
-                                 "status": False
-                             } )
-            else:
-                wake_on_lan( TV_MAC )
-                ctrl.tv_req( 'system',
-                             'setPowerStatus',
-                             {
-                                 "status": True
-                             } )
-                ctrl.tv_req(
-                    'avContent',
-                    'setPlayContent',
+        try:
+            if slug == "tvpowercontrol":
+                status_resp = ctrl.tv_req( 'system', 'getPowerStatus' )
+                status = ( status_resp or
+                           {} ).get( 'result',
+                                     [ {} ] )[ 0 ].get( 'status' )
+                body = {}
+                if status == 'active':
+                    logger.info( "TV power: turning off (was active)" )
+                    ctrl.kodi_stop()
+                    body = ctrl.tv_req(
+                        'system',
+                        'setPowerStatus',
+                        {
+                            "status": False
+                        }
+                    )
+                else:
+                    logger.info( "TV power: turning on (was standby)" )
+                    wake_on_lan( TV_MAC )
+                    body = ctrl.tv_req(
+                        'system',
+                        'setPowerStatus',
+                        {
+                            "status": True
+                        }
+                    )
+                    hdmi_resp = ctrl.tv_req(
+                        'avContent',
+                        'setPlayContent',
+                        {
+                            "uri": f"extInput:hdmi?port={TV_HDMI_PORT}"
+                        }
+                    )
+                    body[ 'hdmi_resp' ] = hdmi_resp
+                body[ 'prev_status' ] = status
+                self._send_json( 200, body )
+            elif slug in [ "tvvolumeup", "tvvolumedown", "tvvolumemute" ]:
+                action_map = {
+                    "tvvolumeup": "vol_up",
+                    "tvvolumedown": "vol_down",
+                    "tvvolumemute": "vol_mute"
+                }
+                key = action_map[ slug ]
+                logger.info( f"TV volume: {key}" )
+                body = ctrl.tv_ircc( key )
+                self._send_json( 200, body )
+            elif slug == "onscreensaveractivated":
+                logger.info( "OnScreenSaver activated: sending TV power-off" )
+                body = ctrl.tv_req(
+                    'system',
+                    'setPowerStatus',
                     {
-                        "uri": f"extInput:hdmi?port={TV_HDMI_PORT}"
+                        "status": False
                     }
                 )
-        elif slug in [ "tvvolumeup", "tvvolumedown", "tvvolumemute" ]:
-            self.send_response( 200 )
-            self.end_headers()
-            action_map = {
-                "tvvolumeup": "vol_up",
-                "tvvolumedown": "vol_down",
-                "tvvolumemute": "vol_mute"
-            }
-            ctrl.tv_ircc( action_map[ slug ] )
-        elif slug == "onscreensaveractivated":
-            ctrl.tv_req( 'system',
-                         'setPowerStatus',
-                         {
-                             "status": False
-                         } )
-        else:
-            self.send_response( 404 )
-            self.end_headers()
+                self._send_json( 200, body )
+            else:
+                self.send_response( 404 )
+                self.end_headers()
+        except ( BraviaTVError, requests.RequestException ) as e:
+            logger.warning( f"TV request failed: {e}" )
+            self._send_json( 502,
+                             {
+                                 "error": str( e )
+                             } )
 
 
 if __name__ == "__main__":
