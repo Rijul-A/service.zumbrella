@@ -2,5 +2,5 @@
 <settings>
 	<setting id="debug" type="bool" label="32036" default="false"/>
 	<setting id="preferred_language" type="text" label="32037" default="eng"/>
-	<setting id="webhook_url" type="text" label="32038" default="https://localhost:8081"/>
+	<setting id="webhook_url" type="text" label="32038" default="http://localhost:8081"/>
 </settings>

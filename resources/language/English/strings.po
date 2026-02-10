@@ -21,17 +21,5 @@ msgid "Preferred language code (e.g., eng, spa, fre)"
 msgstr "Preferred language code (e.g., eng, spa, fre)"
 
 msgctxt "#32038"
-msgid "TV IP address"
-msgstr "TV IP address"
-
-msgctxt "#32039"
-msgid "TV password"
-msgstr "TV password"
-
-msgctxt "#32040"
-msgid "TV HDMI port"
-msgstr "TV HDMI port"
-
-msgctxt "#32041"
-msgid "TV MAC address"
-msgstr "TV MAC address"
+msgid "Webhook Server Endpoint"
+msgstr "Webhook Server Endpoint"
