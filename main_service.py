@@ -6,11 +6,13 @@ from common import ( get_player_id, json_rpc, KodiJSONRPCError )
 from logger import Logger
 from monitor import Monitor
 from player import Player
-from tv_service import BraviaControl
+from webhook_service import WebhookControl
 
 
 class MainService( Logger ):
     __SETTING_LOG_MODE_BOOL__ = "debug"
+    __SETTING_PREFERRED_LANGUAGE__ = "preferred_language"
+    __SETTING_WEBHOOK_URL__ = "webhook_url"
 
     def __init__( self ):
         try:
@@ -29,19 +31,13 @@ class MainService( Logger ):
                 playbackErrorAction = self.onPlayBackError,
                 playBackStoppedAction = self.onPlayBackStopped,
             )
-            tv_settings_valid = self.refresh_settings()
-            if tv_settings_valid:
-                self.bravia_control = BraviaControl(
-                    self.tv_ip,
-                    self.tv_psk,
-                    self.tv_hdmi_port,
-                    self.tv_mac,
-                    self.tv_endpoint
-                )
+            webhook_settings_valid = self.refresh_settings()
+            if webhook_settings_valid:
+                self.webhook_control = WebhookControl( self.webhook_url )
             else:
-                self.bravia_control = None
+                self.webhook_control = None
                 self.log(
-                    'TV settings not configured, TV control disabled',
+                    'Webhook settings not configured, Webhook control disabled',
                     xbmc.LOGWARNING
                 )
         except Exception as e:
@@ -53,24 +49,15 @@ class MainService( Logger ):
 
     def onNotification( self, sender, method, data ):
         if sender == 'service.zumbrella':
-            if self.bravia_control is None:
+            if self.webhook_control is None:
                 self.log(
-                    'TV control not available (settings not configured)',
+                    'Webhook control not available (settings not configured)',
                     xbmc.LOGDEBUG
                 )
                 return
             # For some reason, the method is prefixed with "Other."
             method = method.replace( 'Other.', '' )
-            if method == 'TV.PowerControl':
-                self.bravia_control.run( 'power_control' )
-            elif method == 'TV.VolumeMute':
-                self.bravia_control.run( 'vol_mute' )
-            elif method == 'TV.VolumeDown':
-                self.bravia_control.run( 'vol_down' )
-            elif method == 'TV.VolumeUp':
-                self.bravia_control.run( 'vol_up' )
-            else:
-                self.log( 'Unknown TV command: %s' % method, xbmc.LOGERROR )
+            self.webhook_control.run( method, data )
 
     def onAVStarted( self ):
         self.log( 'onAVStarted' )
@@ -106,41 +93,35 @@ class MainService( Logger ):
 
     def onScreensaverActivated( self ):
         self.log( 'onScreensaverActivated' )
-        if self.bravia_control is not None:
+        if self.webhook_control is not None:
             # we use `_off` to indicate turn off; for some reason,
             # this event is fired multiple times after the screensaver
             # is first activated. we only want to turn off the TV once.
-            self.bravia_control.run( 'power_control_off' )
+            self.webhook_control.run( 'onScreensaverActivated' )
 
     def onScreensaverDeactivated( self ):
         self.log( 'onScreensaverDeactivated' )
-        if self.bravia_control is not None:
-            self.bravia_control.run( 'power_control_on' )
+        if self.webhook_control is not None:
+            self.webhook_control.run( 'onScreensaverDeactivated' )
 
     def onSettingsChanged( self ):
         Logger.set_log_mode( xbmc.LOGINFO )
         self.log( 'Received notification to reload settings, doing so now' )
-        tv_settings_valid = self.refresh_settings()
+        webhook_settings_valid = self.refresh_settings()
         # Recreate bravia_control if settings changed
-        if tv_settings_valid:
+        if webhook_settings_valid:
             try:
-                self.bravia_control = BraviaControl(
-                    self.tv_ip,
-                    self.tv_psk,
-                    self.tv_hdmi_port,
-                    self.tv_mac,
-                    self.tv_endpoint
-                )
-                self.log( 'TV control reinitialized with new settings' )
+                self.webhook_control = WebhookControl( self.webhook_url )
+                self.log( 'Webhook control reinitialized with new settings' )
             except Exception as e:
                 self.log(
-                    'Failed to reinitialize TV control: %s' % str( e ),
+                    'Failed to reinitialize Webhook control: %s' % str( e ),
                     xbmc.LOGERROR
                 )
-                self.bravia_control = None
+                self.webhook_control = None
         else:
-            self.bravia_control = None
-            self.log( 'TV control disabled due to invalid settings' )
+            self.webhook_control = None
+            self.log( 'Webhook control disabled due to invalid settings' )
 
     def refresh_settings( self ):
         try:
@@ -149,39 +130,26 @@ class MainService( Logger ):
                 MainService.__SETTING_LOG_MODE_BOOL__
             ) == 'true'
             self.log( 'debugMode: {}'.format( debugMode ) )
-            self.tv_ip = self.addon.getSetting( 'tv_ip' )
-            self.log( 'tv_ip: {}'.format( self.tv_ip ) )
-            self.tv_psk = self.addon.getSetting( 'tv_password' )
-            self.log( 'tv_psk: {}'.format( self.tv_psk ) )
-            self.tv_hdmi_port = self.addon.getSetting( 'tv_hdmi_port' )
-            self.log( 'tv_hdmi_port: {}'.format( self.tv_hdmi_port ) )
-            self.tv_mac = self.addon.getSetting( 'tv_mac_address' )
-            self.log( 'tv_mac: {}'.format( self.tv_mac ) )
-            # Validate TV settings (non-critical - service can still run)
-            tv_settings_valid = all(
-                [
-                    self.tv_ip and self.tv_ip.strip(),
-                    self.tv_psk and self.tv_psk.strip(),
-                    self.tv_hdmi_port and self.tv_hdmi_port.strip(),
-                    self.tv_mac and self.tv_mac.strip()
-                ]
+            self.webhook_url = self.addon.getSetting(
+                MainService.__SETTING_WEBHOOK_URL__
             )
-            if tv_settings_valid:
-                self.tv_endpoint = f"http://{self.tv_ip}/sony/"
-                self.log( 'tv_endpoint: {}'.format( self.tv_endpoint ) )
-            else:
+            self.log( 'webhook_url: {}'.format( self.webhook_url ) )
+            # Validate Webhook settings (non-critical - service can still run)
+            webhook_settings_valid = self.webhook_url and self.webhook_url.strip(
+            ),
+            if not webhook_settings_valid:
                 self.log(
-                    'TV IP, PSK, HDMI Port, or MAC is not set in settings. TV control disabled.',
+                    'Webhook URL is not set in settings. Webhook control disabled.',
                     xbmc.LOGWARNING
                 )
                 xbmc.executebuiltin(
-                    'Notification(Zumbrella Warning, TV settings not configured, 5000)'
+                    'Notification(Zumbrella Warning, Webhook settings not configured, 5000)'
                 )
             if not debugMode:
                 self.log( 'Addon going quiet due to debugMode disabled' )
             # When debug mode is ON, use LOGDEBUG (verbose), otherwise LOGINFO (normal)
             Logger.set_log_mode( xbmc.LOGDEBUG if debugMode else xbmc.LOGINFO )
-            return tv_settings_valid
+            return webhook_settings_valid
         except Exception as e:
             self.log( 'Error reading settings: %s' % str( e ), xbmc.LOGERROR )
             # Default to INFO level if settings can't be read
@@ -191,7 +159,9 @@ class MainService( Logger ):
     def activate_subtitles( self, lang = None ):
         try:
             if lang is None:
-                lang = self.addon.getSetting( 'preferred_language' ) or 'eng'
+                lang = self.addon.getSetting(
+                    MainService.__SETTING_PREFERRED_LANGUAGE__
+                ) or 'eng'
             self.log(
                 'Activating subtitles with language preference: %s' % lang
             )
@@ -263,7 +233,9 @@ class MainService( Logger ):
     def change_audio_stream( self, lang = None ):
         try:
             if lang is None:
-                lang = self.addon.getSetting( 'preferred_language' ) or 'eng'
+                lang = self.addon.getSetting(
+                    MainService.__SETTING_PREFERRED_LANGUAGE__
+                ) or 'eng'
             # do not change audio stream if there is no video
             self.log(
                 'Changing audio stream with language preference: %s' % lang
