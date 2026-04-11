@@ -158,43 +158,104 @@ class BraviaHandler( BaseHTTPRequestHandler ):
     def do_GET( self ):
         slug = self.path.strip( "/" ).replace( ".", "" ).casefold()
         ctrl = MediaController()
+        wake_on_lan( TV_MAC )
         try:
-            if slug == "tvpowercontrol":
+            if slug.startswith( "tvpower" ):
+                action = slug.replace( "tvpower", "" )
                 status_resp = ctrl.tv_req( 'system', 'getPowerStatus' )
                 status = ( status_resp or
                            {} ).get( 'result',
                                      [ {} ] )[ 0 ].get( 'status' )
-                body = {}
-                if status == 'active':
-                    logger.info( "TV power: turning off (was active)" )
-                    ctrl.kodi_stop()
-                    body = ctrl.tv_req(
-                        'system',
-                        'setPowerStatus',
-                        {
-                            "status": False
-                        }
-                    )
-                else:
-                    logger.info( "TV power: turning on (was standby)" )
-                    wake_on_lan( TV_MAC )
-                    body = ctrl.tv_req(
-                        'system',
-                        'setPowerStatus',
-                        {
-                            "status": True
-                        }
-                    )
-                    hdmi_resp = ctrl.tv_req(
-                        'avContent',
-                        'setPlayContent',
-                        {
-                            "uri": f"extInput:hdmi?port={TV_HDMI_PORT}"
-                        }
-                    )
-                    body[ 'hdmi_resp' ] = hdmi_resp
-                body[ 'prev_status' ] = status
-                self._send_json( 200, body )
+                power_req = {
+                    "send": False,
+                    "service": "system",
+                    "method": "setPowerStatus",
+                    "params": {}
+                }
+                input_req = {
+                    "send": False,
+                    "service": "avContent",
+                    "method": "setPlayContent",
+                    "params": {
+                        "uri": f"extInput:hdmi?port={TV_HDMI_PORT}"
+                    }
+                }
+                if action in [ "control", "toggle" ]:
+                    if status == "active":
+                        power_req.update(
+                            {
+                                "send": True,
+                                "params": {
+                                    "status": False
+                                },
+                                "side_effect": ctrl.kodi_stop
+                            }
+                        )
+                    else:
+                        power_req.update(
+                            {
+                                "send": True,
+                                "params": {
+                                    "status": True
+                                }
+                            }
+                        )
+                        input_req[ "send" ] = True
+                elif action == "on":
+                    if status != "active":
+                        power_req.update(
+                            {
+                                "send": True,
+                                "params": {
+                                    "status": True
+                                }
+                            }
+                        )
+                    try:
+                        hdmi_resp = ctrl.tv_req(
+                            'avContent',
+                            'getPlayingContentInfo'
+                        )
+                        current_hdmi = ( hdmi_resp or
+                                         {} ).get( 'result',
+                                                   [ {}
+                                                    ] )[ 0 ].get( 'uri',
+                                                                  '' )
+                        if current_hdmi != input_req[ "params" ][ "uri" ]:
+                            input_req[ "send" ] = True
+                    except:
+                        input_req[ "send" ] = True
+                elif action == "off":
+                    if status == "active":
+                        power_req.update(
+                            {
+                                "send": True,
+                                "params": {
+                                    "status": False
+                                },
+                                "side_effect": ctrl.kodi_stop
+                            }
+                        )
+                    else:
+                        ctrl.kodi_stop()
+                results = []
+                for req in [ power_req, input_req ]:
+                    if req[ "send" ]:
+                        if "side_effect" in req:
+                            req[ "side_effect" ]()
+                        res = ctrl.tv_req(
+                            req[ "service" ],
+                            req[ "method" ],
+                            req[ "params" ]
+                        )
+                        results.append( res )
+                self._send_json(
+                    200,
+                    {
+                        "prev_status": status,
+                        "results": results
+                    }
+                )
             elif slug in [ "tvvolumeup", "tvvolumedown", "tvvolumemute" ]:
                 action_map = {
                     "tvvolumeup": "vol_up",
