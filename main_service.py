@@ -194,16 +194,17 @@ class MainService( Logger ):
             else:
                 self.log( 'Choosing appropriate subtitle' )
                 # our order of preference is:
-                # 1. internal subtitle with matching language
-                # 2. any subtitle with matching language
+                # 1. internal subtitle with matching language (first 2 chars)
+                # 2. any subtitle with matching language (first 2 chars)
                 # 3. default subtitle
                 # 4. internal subtitle without any language
                 # 5. any subtitle without any language
                 constraints = {
                     "internal with language": lambda x: x.get( 'language', '' )
-                    == lang and 'external' not in x.get( 'name', '' ).lower(),
-                    "any with language": lambda x: x.get( 'language', ''
-                                                         ) == lang,
+                    [ : 2 ].lower() == lang[ : 2 ].lower(
+                    ) and 'external' not in x.get( 'name', '' ).lower(),
+                    "any with language": lambda x: x.get( 'language', '' )
+                    [ : 2 ].lower() == lang[ : 2 ].lower(),
                     "prefer default": lambda x: x.get( 'isdefault', False ),
                     "internal without language": lambda x: x.get(
                         'language', ''
@@ -259,10 +260,11 @@ class MainService( Logger ):
             else:
                 self.log( 'Choosing appropriate audio stream' )
                 constraints = {
-                    "any with language": lambda x: x.get( 'language', ''
-                                                         ) == lang,
-                    "any without language": lambda x: x.get( 'language', '' ) ==
-                    '',
+                    # first 2 chars
+                    "any with language": lambda x: x.get( 'language', '' )
+                    [ : 2 ].lower() == lang[ : 2 ].lower(),
+                    "any without language": lambda x: x.get( 'language', ''
+                                                            ) == '',
                     "prefer default": lambda x: x.get( 'isdefault', False ),
                 }
                 index = self.pick_appropriate( audio_streams, constraints )
