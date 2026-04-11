@@ -8,6 +8,7 @@ Features
 
 * **Automatic Audio Stream Selection**: Automatically selects the best audio stream matching your preferred language when playback starts
 * **Automatic Subtitle Activation**: Intelligently activates subtitles based on your language preference, with smart filtering of forced subtitles
+* **Webhook Integration**: Triggers external webhooks automatically when the Kodi screensaver is activated or deactivated
 
 How It Works
 ------------
@@ -17,13 +18,19 @@ When video playback starts, the service:
 1. Detects available audio streams and selects one matching your preferred language
 2. Filters out forced subtitles and activates the best matching subtitle track
 
+Additionally, the service monitors the Kodi screensaver state:
+
+1. Sends a GET request to `<Webhook URL>/onScreensaverActivated` when the screensaver starts
+2. Sends a GET request to `<Webhook URL>/onScreensaverDeactivated` when the screensaver stops
+
 Configuration
 -------------
 
-The addon includes two settings:
+The addon includes the following settings:
 
 * **Debug mode**: Enable verbose logging for troubleshooting
 * **Preferred language**: Set your preferred language code (e.g., `eng`, `spa`, `fre`, `deu`)
+* **Webhook URL**: Set the base URL for webhook events (e.g., `http://localhost:8081`)
 
 Subtitle Selection Priority
 ---------------------------
