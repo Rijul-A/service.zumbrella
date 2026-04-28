@@ -1,10 +1,11 @@
 .PHONY: all package clean
 
-ZIP_NAME ?= service.zumbrella.zip
+ADDON_NAME = service.zumbrella
+ZIP_NAME ?= $(ADDON_NAME).zip
 
 all: package
 
-package:
+package: clean
 	zip -r $(ZIP_NAME) . -x '*.git*' -x 'bravia_server.py' -x 'media_launcher.sh' -x '$(ZIP_NAME)'
 
 clean:

@@ -93,6 +93,7 @@ class MainService( Logger ):
 
     def onScreensaverActivated( self ):
         self.log( 'onScreensaverActivated' )
+        self.player.stop()
         if self.webhook_control is not None:
             # we use `_off` to indicate turn off; for some reason,
             # this event is fired multiple times after the screensaver

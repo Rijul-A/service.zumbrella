@@ -20,7 +20,7 @@ When video playback starts, the service:
 
 Additionally, the service monitors the Kodi screensaver state:
 
-1. Sends a GET request to `<Webhook URL>/onScreensaverActivated` when the screensaver starts
+1. Sends a GET request to `<Webhook URL>/onScreensaverActivated` and stops the currently playing media when the screensaver starts.
 2. Sends a GET request to `<Webhook URL>/onScreensaverDeactivated` when the screensaver stops
 
 Configuration
