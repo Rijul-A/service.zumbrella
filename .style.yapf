@@ -12,7 +12,7 @@ align_closing_bracket_with_visual_indent=True
 allow_multiline_dictionary_keys=False
 
 # Allow lambdas to be formatted on more than one line.
-allow_multiline_lambdas=False
+allow_multiline_lambdas=True
 
 # Allow splitting before a default / named assignment in an argument list.
 allow_split_before_default_or_named_assigns=True
@@ -171,7 +171,7 @@ indent_closing_brackets=False
 #       'key2': value1 +
 #               value2,
 #   }
-indent_dictionary_value=False
+indent_dictionary_value=True
 
 # The number of columns to use for indentation.
 indent_width=4

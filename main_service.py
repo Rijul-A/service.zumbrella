@@ -176,17 +176,8 @@ class MainService( Logger ):
             if not isinstance( subtitles, list ):
                 self.log( 'Invalid subtitle data format, doing nothing' )
                 return
-            # drop the forced subtitles which contain only certain translations
-            # and aren't full subtitles
-            self.log( 'Dropping forced subtitles' )
-            subtitles = [
-                subtitle for subtitle in subtitles if not (
-                    subtitle.get( 'isforced', False ) or
-                    'forced' in subtitle.get( 'name', '' ).lower()
-                )
-            ]
             if len( subtitles ) == 0:
-                self.log( 'No subtitle available after filtering, cancelled' )
+                self.log( 'No subtitles available, cancelled' )
                 return
             index = None
             if len( subtitles ) == 1:
@@ -194,24 +185,62 @@ class MainService( Logger ):
                 index = subtitles[ 0 ].get( 'index' )
             else:
                 self.log( 'Choosing appropriate subtitle' )
-                # our order of preference is:
-                # 1. internal subtitle with matching language (first 2 chars)
-                # 2. any subtitle with matching language (first 2 chars)
-                # 3. default subtitle
-                # 4. internal subtitle without any language
-                # 5. any subtitle without any language
+                matches_lang = lambda x: x.get( 'language', '' )[ : 2 ].lower(
+                ) == lang[ : 2 ].lower()
+                is_external = lambda x: 'external' in x.get( 'name', '' ).lower(
+                )
+                is_default = lambda x: x.get( 'isdefault', False )
+                is_forced = lambda x: x.get(
+                    'isforced', False
+                ) or 'forced' in x.get( 'name', '' ).lower()
+                without_language = lambda x: x.get( 'language', '' ) == ''
                 constraints = {
-                    "internal with language": lambda x: x.get( 'language', '' )
-                    [ : 2 ].lower() == lang[ : 2 ].lower(
-                    ) and 'external' not in x.get( 'name', '' ).lower(),
-                    "any with language": lambda x: x.get( 'language', '' )
-                    [ : 2 ].lower() == lang[ : 2 ].lower(),
-                    "prefer default": lambda x: x.get( 'isdefault', False ),
-                    "internal without language": lambda x: x.get(
-                        'language', ''
-                    ) == '' and 'external' not in x.get( 'name', '' ).lower(),
-                    "any without language": lambda x: x.get( 'language', ''
-                                                            ) == '',
+                    # 1. internal subtitle, matching language, not forced
+                    "internal with language and not forced":
+                        lambda x: not is_external( x ) and matches_lang( x ) and
+                        not is_forced( x ),
+                    # 2. external subtitle, matching language, not forced
+                    "external with language and not forced":
+                        lambda x: is_external( x ) and matches_lang( x ) and
+                        not is_forced( x ),
+                    # 3. internal subtitle, matching language, forced
+                    "internal with language and forced":
+                        lambda x: not is_external( x ) and matches_lang( x ) and
+                        is_forced( x ),
+                    # 4. external subtitle, matching language, forced
+                    "external with language and forced":
+                        lambda x: is_external( x ) and matches_lang( x ) and
+                        is_forced( x ),
+                    # 5. internal subtitle without any language, not forced
+                    "internal without language and not forced":
+                        lambda x: not is_external( x ) and
+                        without_language( x ) and not is_forced( x ),
+                    # 5. internal subtitle without any language, not forced
+                    "external without language and not forced":
+                        lambda x: is_external( x ) and without_language( x ) and
+                        not is_forced( x ),
+                    # 7. default and not forced
+                    "default and not forced":
+                        lambda x: is_default( x ) and not is_forced( x ),
+                    # 8. internal subtitle, matching language, forced
+                    "internal with language and forced":
+                        lambda x: not is_external( x ) and matches_lang( x ) and
+                        is_forced( x ),
+                    # 9. external subtitle, matching language, forced
+                    "external with language and forced":
+                        lambda x: is_external( x ) and matches_lang( x ) and
+                        is_forced( x ),
+                    # 10. internal subtitle without any language, forced
+                    "internal without language and forced":
+                        lambda x: not is_external( x ) and
+                        without_language( x ) and is_forced( x ),
+                    # 11. external subtitle without any language, forced
+                    "external without language and forced":
+                        lambda x: is_external( x ) and without_language( x ) and
+                        is_forced( x ),
+                    # 12. default and forced
+                    "default and forced":
+                        lambda x: is_default( x ) and is_forced( x ),
                 }
                 index = self.pick_appropriate( subtitles, constraints )
             if index is None:
@@ -262,10 +291,11 @@ class MainService( Logger ):
                 self.log( 'Choosing appropriate audio stream' )
                 constraints = {
                     # first 2 chars
-                    "any with language": lambda x: x.get( 'language', '' )
-                    [ : 2 ].lower() == lang[ : 2 ].lower(),
-                    "any without language": lambda x: x.get( 'language', ''
-                                                            ) == '',
+                    "any with language":
+                        lambda x: x.get( 'language', '' )[ : 2 ].lower() ==
+                        lang[ : 2 ].lower(),
+                    "any without language":
+                        lambda x: x.get( 'language', '' ) == '',
                     "prefer default": lambda x: x.get( 'isdefault', False ),
                 }
                 index = self.pick_appropriate( audio_streams, constraints )
